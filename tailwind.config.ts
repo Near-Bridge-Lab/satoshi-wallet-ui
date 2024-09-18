@@ -1,19 +1,53 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
+import { nextui } from '@nextui-org/react';
+import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        primary: 'var(--primary)',
       },
     },
   },
-  plugins: [],
+  darkMode: 'class',
+  plugins: [
+    plugin(({ matchComponents, theme, addComponents }) => {
+      addComponents({
+        //p-5 max-w-screen-md mx-auto
+        '.s-container': {
+          padding: theme('padding.5'),
+          maxWidth: theme('maxWidth.screen-md'),
+          margin: '0 auto',
+        },
+      });
+    }),
+    nextui({
+      addCommonColors: true,
+      themes: {
+        light: {
+          colors: {
+            background: '#FFFFFF',
+            foreground: '#11181C',
+          },
+        },
+        dark: {
+          colors: {
+            background: '#212330',
+            foreground: '#FFF2F2',
+            default: {
+              100: '#2c2e39',
+            },
+          },
+        },
+      },
+    }),
+  ],
 };
 export default config;

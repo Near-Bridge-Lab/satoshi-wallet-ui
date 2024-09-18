@@ -1,101 +1,166 @@
-import Image from "next/image";
+'use client';
+import ChainSelector from '@/components/wallet/Chains';
+import { Tokens } from '@/components/wallet/Tokens';
+
+import { formatFileUrl, formatNumber } from '@/utils/format';
+import { Icon } from '@iconify/react';
+import {
+  Button,
+  Image,
+  Snippet,
+  Tabs,
+  Tab,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@nextui-org/react';
+import { useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <main className="s-container">
+      <Header className="mb-10" />
+      <Balance className="mb-10" />
+      <Tools className="mb-10" />
+      <Portfolio />
+    </main>
+  );
+}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+function Header({ className }: { className?: string }) {
+  const router = useRouter();
+  return (
+    <header className={`flex justify-between w-full ${className ?? ''}`}>
+      <ChainSelector />
+      <Account />
+      <Button
+        isIconOnly
+        variant="flat"
+        size="sm"
+        radius="full"
+        className="min-w-7 w-7 h-7 bg-default-100"
+        onClick={() => router.push('/settings')}
+      >
+        <Icon icon="fluent:settings-48-filled" className="text-lg" />
+      </Button>
+    </header>
+  );
+}
+
+function Account() {
+  return (
+    <div className="flex flex-col gap-2 items-center">
+      <div className="font-bold">Near Account</div>
+      <Popover>
+        <PopoverTrigger>
+          <div className="flex items-center gap-2 text-sm text-default-500 bg-foreground/10 h-6 px-2 rounded-full cursor-pointer">
+            <div className="">XXX...x.near</div>
+            <Icon icon="fluent:chevron-right-12-regular" />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div className="p-1 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-5">
+              <Image src={formatFileUrl('/assets/chain/near.svg')} width={24} height={24} />
+              <Snippet classNames={{ base: 'bg-transparent p-0' }} hideSymbol>
+                xxxxxx....near
+              </Snippet>
+            </div>
+            <div className="flex items-center justify-between gap-5">
+              <Image src={formatFileUrl('/assets/chain/btc.svg')} width={24} height={24} />
+              <Snippet classNames={{ base: 'bg-transparent p-0' }} hideSymbol>
+                xxxxxx....near
+              </Snippet>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
+function Balance({ className }: { className?: string }) {
+  const accountBalance = '0';
+
+  return (
+    <div className={`flex flex-col items-center justify-center gap-2 ${className ?? ''}`}>
+      <div className="text-4xl font-bold">{formatNumber(accountBalance || 0)} BTC</div>
+      <div className="text-default-500">
+        ≈ {formatNumber(0, { style: 'currency', currency: 'USD' })}
+      </div>
+    </div>
+  );
+}
+
+function Tools({ className }: { className?: string }) {
+  const tools = [
+    { label: 'Send', icon: formatFileUrl('/wallet-assets/send.svg'), action: handleSend },
+    { label: 'Receive', icon: formatFileUrl('/wallet-assets/receive.svg'), action: handleReceive },
+    { label: 'Swap', icon: formatFileUrl('/wallet-assets/swap.svg'), action: handleSwap },
+    { label: 'Bridge', icon: formatFileUrl('/wallet-assets/bridge.svg'), action: handleBridge },
+  ];
+
+  function handleSend() {}
+
+  function handleReceive() {}
+
+  function handleSwap() {}
+
+  function handleBridge() {}
+
+  return (
+    <div className={`grid grid-cols-4 gap-5 ${className ?? ''}`}>
+      {tools.map((item, index) => (
+        <div
+          key={index}
+          className="group flex flex-col items-center justify-center gap-2 cursor-pointer"
+          onClick={item.action}
+        >
+          <div className="w-11 h-11 rounded-full bg-default-100  group-hover:bg-default-200 flex items-center justify-center">
+            <Image src={item.icon} width={24} height={24} />
+          </div>
+          <div className="text-base font-bold">{item.label}</div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      ))}
+    </div>
+  );
+}
+
+const portfolios = [
+  { label: 'Tokens', value: 'tokens' },
+  { label: 'NFTs', value: 'nfts' },
+  { label: 'Activity', value: 'activity' },
+];
+
+function Portfolio({ className }: { className?: string }) {
+  const router = useRouter();
+  const [current, setCurrent] = useState(portfolios[0].value);
+
+  return (
+    <div className={className}>
+      <div className="flex items-center justify-between mb-3">
+        <Tabs
+          aria-label=""
+          selectedKey={current}
+          items={portfolios}
+          classNames={{ tabList: 'gap-6', tab: 'text-xl font-bold px-0', cursor: 'hidden' }}
+          variant="light"
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          {(item) => <Tab key={item.value} title={item.label}></Tab>}
+        </Tabs>
+        <Button
+          isIconOnly
+          variant="flat"
+          size="sm"
+          radius="full"
+          className="min-w-7 w-7 h-7 "
+          onClick={() => router.push('/tokens')}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <Icon icon="fluent:add-12-filled" className="text-base text-primary" />
+        </Button>
+      </div>
+      <div>{current === 'tokens' && <Tokens />}</div>
     </div>
   );
 }
