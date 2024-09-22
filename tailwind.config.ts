@@ -24,6 +24,7 @@ const config: Config = {
         '.s-container': {
           padding: theme('padding.5'),
           maxWidth: theme('maxWidth.screen-md'),
+          minHeight: '100dvh',
           margin: '0 auto',
         },
       });
@@ -43,6 +44,9 @@ const config: Config = {
             foreground: '#FFF2F2',
             default: {
               100: '#2c2e39',
+            },
+            primary: {
+              foreground: '#000',
             },
           },
         },

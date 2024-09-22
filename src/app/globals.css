@@ -10,6 +10,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@layer components {
+  .card {
+    @apply flex items-center justify-between gap-2 bg-default-100 hover:bg-default-200 rounded-xl p-3;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

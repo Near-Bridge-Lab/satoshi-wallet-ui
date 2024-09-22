@@ -57,6 +57,28 @@ export default function Setting() {
               Theme
             </ListboxItem>
           </ListboxSection>
+          <ListboxSection title="Other">
+            <ListboxItem
+              key="contact"
+              startContent={<IconWrapper icon="mingcute:telegram-fill" />}
+              endContent={
+                <Icon icon="eva:chevron-right-fill" className="text-lg text-default-500" />
+              }
+              classNames={{ base: 'py-3' }}
+            >
+              Contact Us
+            </ListboxItem>
+            <ListboxItem
+              key="privacy"
+              startContent={<IconWrapper icon="fluent:lock-24-filled" />}
+              endContent={
+                <Icon icon="eva:chevron-right-fill" className="text-lg text-default-500" />
+              }
+              classNames={{ base: 'py-3' }}
+            >
+              Privacy Policy
+            </ListboxItem>
+          </ListboxSection>
         </Listbox>
       </Loading>
     </div>

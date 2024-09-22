@@ -15,6 +15,13 @@ import { safeJSONParse, safeJSONStringify, storageStore } from '../utils/common'
 import dayjs from '@/utils/dayjs';
 import { useRouter } from 'next/router';
 
+export function useClient() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
+  return { isClient };
+}
+
 type DebounceOptions = number | ({ wait: number } & Partial<DebounceSettings>);
 type RequestOptions<T> = {
   refreshDeps?: React.DependencyList;
@@ -153,12 +160,12 @@ export function useDebouncedEffect(
   }, [...deps]);
 }
 
-export function useAsyncMemo<T>(
+export function useDebouncedMemo<T>(
   factory: () => Promise<T> | undefined | null,
   deps: DependencyList,
-  initial?: T,
+  options?: DebounceOptions,
 ) {
-  const [val, setVal] = useState<T | undefined>(initial);
+  const [val, setVal] = useState<T | undefined>();
   useDebouncedEffect(
     () => {
       let cancel = false;
@@ -174,7 +181,7 @@ export function useAsyncMemo<T>(
       };
     },
     deps,
-    300,
+    options ?? 0,
   );
   return val;
 }

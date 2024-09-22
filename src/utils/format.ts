@@ -1,3 +1,5 @@
+import Big from 'big.js';
+
 export function formatSortAddress(address: string | undefined) {
   if (!address) return '';
 
@@ -33,6 +35,16 @@ export function formatNumber(val: string | number | undefined, options?: Intl.Nu
     maximumFractionDigits: 8,
     ...options,
   }).format(Number(val));
+}
+
+export function formatAmount(amount: string | number | undefined, decimals = 24) {
+  if (!amount) return '';
+  try {
+    const n = new Big(amount).div(Big(10).pow(decimals)).toFixed();
+    return n;
+  } catch (error) {
+    return '';
+  }
 }
 
 export function formatFileUrl(key: string, options?: { useS3Url: boolean }) {
