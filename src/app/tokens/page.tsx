@@ -4,7 +4,7 @@ import { ImportToken } from '@/components/wallet/Tokens';
 import { useClient } from '@/hooks/useHooks';
 import { useMessageBoxContext } from '@/providers/MessageBoxProvider';
 import { useWalletStore } from '@/stores/wallet';
-import { formatFileUrl } from '@/utils/format';
+import { formatFileUrl, formatToken } from '@/utils/format';
 import { Icon } from '@iconify/react';
 import {
   Button,
@@ -98,7 +98,7 @@ export default function Tokens() {
                 >
                   <div className="flex items-center gap-3">
                     <Image src={item?.icon} width={30} height={30} />
-                    <span className="text-base">{item?.symbol}</span>
+                    <span className="text-base">{formatToken(item?.symbol)}</span>
                   </div>
                 </ListboxItem>
               )) as any)}

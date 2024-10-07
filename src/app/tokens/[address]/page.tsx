@@ -4,7 +4,7 @@ import { useClient, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { usePriceStore } from '@/stores/price';
 import { useWalletStore } from '@/stores/wallet';
-import { formatNumber } from '@/utils/format';
+import { formatNumber, formatToken } from '@/utils/format';
 import Big from 'big.js';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
@@ -40,7 +40,7 @@ export default function TokenDetailPage() {
             classNames={{ wrapper: 'rounded-full overflow-hidden w-15 h-15 mb-5' }}
           />
           <div className="text-lg font-bold">
-            {formatNumber(balance)} {tm?.symbol}
+            {formatNumber(balance)} {formatToken(tm?.symbol)}
           </div>
           <div className="text-default-500">
             {formatNumber(balancesUSD, { style: 'currency', currency: 'USD' })}

@@ -21,8 +21,11 @@ export default function Receive() {
       <div className="flex items-center justify-center">
         <Image src={qrcode} width={260} height={260} />
       </div>
-      <div className="flex items-center justify-center gap-2 py-5">
-        <Snippet classNames={{ base: 'bg-transparent p-0' }} hideSymbol>
+      <div className="flex items-center justify-center gap-2 p-5 ">
+        <Snippet
+          classNames={{ base: 'bg-transparent p-0', pre: 'whitespace-pre-wrap break-all' }}
+          hideSymbol
+        >
           {accountId}
         </Snippet>
       </div>

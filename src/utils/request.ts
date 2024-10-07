@@ -92,3 +92,44 @@ export default async function request<T>(url: string, options?: RequestOptions<T
     return Promise.reject(err);
   }
 }
+
+export function rpcToParent(action: string, params: any) {
+  return new Promise((resolve, reject) => {
+    const requestId = Math.random().toString(36).substring(7);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const origin = urlParams.get('origin') || '';
+
+    function handleMessage(event: {
+      origin: string;
+      data: { requestId: any; result: any; error: any; success: any };
+    }) {
+      if (event.origin !== origin) {
+        console.warn('Untrusted message origin:', event.origin);
+        return;
+      }
+
+      const { requestId: responseId, result, error, success } = event.data;
+
+      if (responseId === requestId) {
+        if (success) {
+          resolve(result);
+        } else {
+          reject(new Error(error));
+        }
+        window.removeEventListener('message', handleMessage);
+      }
+    }
+
+    window.addEventListener('message', handleMessage);
+
+    window.parent.postMessage(
+      {
+        action,
+        requestId,
+        params,
+      },
+      origin,
+    );
+  });
+}

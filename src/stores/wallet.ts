@@ -9,6 +9,8 @@ const storage = storageStore(query.publicKey);
 
 export type WalletState = {
   accountId?: string;
+  originalAccountId?: string;
+  originalPublicKey?: string;
   tokens?: string[];
   addToken: (token: string) => void;
   hiddenTokens?: string[];
@@ -19,7 +21,9 @@ export type WalletState = {
 };
 
 export const useWalletStore = create<WalletState>((set, get) => ({
-  accountId: 'jimi1.testnet',
+  accountId: new URLSearchParams(window.location.search).get('accountId') ?? '',
+  originalAccountId: new URLSearchParams(window.location.search).get('originalAccountId') ?? '',
+  originalPublicKey: new URLSearchParams(window.location.search).get('originalPublicKey') ?? '',
   tokens: storage?.get('tokens') || TOKEN_WHITE_LIST,
   hiddenTokens: storage?.get('hiddenTokens') || [],
   tokenMeta: storage?.get('tokenMeta') || {},

@@ -4,7 +4,7 @@ import { useTokenSelector } from '@/components/wallet/Tokens';
 import { useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { useWalletStore } from '@/stores/wallet';
-import { formatFileUrl, formatNumber } from '@/utils/format';
+import { formatFileUrl, formatNumber, formatToken } from '@/utils/format';
 import { Icon } from '@iconify/react';
 import { Button, Image, Input } from '@nextui-org/react';
 import { useSearchParams } from 'next/navigation';
@@ -44,7 +44,7 @@ export default function Send() {
           <div className="card cursor-pointer" onClick={handleSelectToken}>
             <div className="flex items-center gap-3">
               <Image src={tokenMeta[selectedToken]?.icon} width={30} height={30} />
-              <span className="text-base">{tokenMeta[selectedToken]?.symbol}</span>
+              <span className="text-base">{formatToken(tokenMeta[selectedToken]?.symbol)}</span>
             </div>
             <Icon icon="eva:chevron-right-fill" className="text-lg " />
           </div>
@@ -69,7 +69,7 @@ export default function Send() {
             endContent={<span className="font-bold">NEAR</span>}
           />
           <div className="text-default-500 text-right text-xs mt-3">
-            Balance: {formatNumber(balance)} {tokenMeta[selectedToken]?.symbol}
+            Balance: {formatNumber(balance)} {formatToken(tokenMeta[selectedToken]?.symbol)}
             <Button
               size="sm"
               color="primary"

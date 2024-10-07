@@ -11,6 +11,22 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    config.module.rules.push({
+      test: /satoshi-wellet/,
+      use: [
+        {
+          loader: 'ts-loader',
+          options: {
+            compilerOptions: { noEmit: false },
+            onlyCompileBundledFiles: true,
+            allowTsInNodeModules: true,
+          },
+        },
+      ],
+    });
+    return config;
+  },
 };
 
 export default nextConfig;

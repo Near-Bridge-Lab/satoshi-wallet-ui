@@ -4,8 +4,9 @@ import Activity from '@/components/wallet/Activity';
 import ChainSelector from '@/components/wallet/Chains';
 import { NFTs } from '@/components/wallet/NTFs';
 import Tools from '@/components/wallet/Tools';
+import { useWalletStore } from '@/stores/wallet';
 
-import { formatFileUrl, formatNumber } from '@/utils/format';
+import { formatFileUrl, formatNumber, formatSortAddress } from '@/utils/format';
 import { Icon } from '@iconify/react';
 import {
   Button,
@@ -53,13 +54,14 @@ function Header({ className }: { className?: string }) {
 }
 
 function Account() {
+  const { accountId, originalAccountId } = useWalletStore();
   return (
     <div className="flex flex-col gap-2 items-center">
       <div className="font-bold">Near Account</div>
       <Popover>
         <PopoverTrigger>
           <div className="flex items-center gap-2 text-sm text-default-500 bg-foreground/10 h-6 px-2 rounded-full cursor-pointer">
-            <div className="">XXX...x.near</div>
+            <div className="">{formatSortAddress(accountId)}</div>
             <Icon icon="fluent:chevron-right-12-regular" />
           </div>
         </PopoverTrigger>
@@ -67,14 +69,22 @@ function Account() {
           <div className="p-1 flex flex-col gap-2">
             <div className="flex items-center justify-between gap-5">
               <Image src={formatFileUrl('/assets/chain/near.svg')} width={24} height={24} />
-              <Snippet classNames={{ base: 'bg-transparent p-0' }} hideSymbol>
-                xxxxxx....near
+              <Snippet
+                classNames={{ base: 'bg-transparent p-0' }}
+                codeString={accountId}
+                hideSymbol
+              >
+                {formatSortAddress(accountId)}
               </Snippet>
             </div>
             <div className="flex items-center justify-between gap-5">
               <Image src={formatFileUrl('/assets/chain/btc.svg')} width={24} height={24} />
-              <Snippet classNames={{ base: 'bg-transparent p-0' }} hideSymbol>
-                xxxxxx....near
+              <Snippet
+                classNames={{ base: 'bg-transparent p-0' }}
+                codeString={originalAccountId}
+                hideSymbol
+              >
+                {formatSortAddress(originalAccountId)}
               </Snippet>
             </div>
           </div>

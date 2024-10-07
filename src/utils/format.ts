@@ -54,3 +54,8 @@ export function formatFileUrl(key: string, options?: { useS3Url: boolean }) {
       : process.env.NEXT_PUBLIC_AWS_S3_URL
   }${key}`;
 }
+
+export function formatToken(symbol?: string) {
+  if (symbol === 'NBTC') return 'BTC';
+  return symbol;
+}

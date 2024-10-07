@@ -4,7 +4,7 @@ import { useDebouncedMemo, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { usePriceStore } from '@/stores/price';
 import { useWalletStore } from '@/stores/wallet';
-import { formatNumber } from '@/utils/format';
+import { formatNumber, formatToken } from '@/utils/format';
 import { isValidNearAddress } from '@/utils/validate';
 import { Button, Image, Input } from '@nextui-org/react';
 import Big from 'big.js';
@@ -89,7 +89,7 @@ export function Tokens({
           <div className="flex items-center gap-2">
             <Image src={tokenMeta[token]?.icon} width={30} height={30} />
             <div>
-              <div className="text-base font-bold">{tokenMeta[token]?.symbol}</div>
+              <div className="text-base font-bold">{formatToken(tokenMeta[token]?.symbol)}</div>
               <div className="text-xs text-default-500">
                 {tokenMeta[token]?.symbol
                   ? formatNumber(prices?.[tokenMeta[token]?.symbol], {
@@ -166,7 +166,7 @@ export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
             <div className="card gap-2">
               <Image src={tokenMeta.icon} width={30} height={30} />
               <div className="flex-1 ml-1">
-                <div className="text-base font-bold">{tokenMeta.symbol}</div>
+                <div className="text-base font-bold">{formatToken(tokenMeta.symbol)}</div>
                 <div className="text-xs text-default-500">{tokenMeta.name}</div>
               </div>
             </div>

@@ -1,6 +1,5 @@
 'use client';
 import { useDebouncedEffect } from '@/hooks/useHooks';
-import { setupCA } from '@/libs/wallet-selector';
 import { nearServices } from '@/services/near';
 import { setupWalletSelector, Wallet, WalletSelector } from '@near-wallet-selector/core';
 import { type WalletSelectorModal, setupModal } from '@near-wallet-selector/modal-ui';
@@ -8,7 +7,15 @@ import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
+import {
+  setupSatoshiWallet,
+  useBtcWalletSelector,
+  BtcWalletSelectorContextProvider,
+  InitContextHook,
+} from 'satoshi-wallet';
+
 import '@near-wallet-selector/modal-ui/styles.css';
+import { initWalletButton } from '@/hooks/initWalletButton';
 
 declare global {
   interface Window {
@@ -26,11 +33,30 @@ type NearWallet = Wallet &
   };
 
 export default function Page() {
+  return (
+    <BtcWalletSelectorContextProvider>
+      <InitContextHook />
+      <WalletPage />
+    </BtcWalletSelectorContextProvider>
+  );
+}
+
+function WalletPage() {
   const [walletSelectorModal, setWalletSelectorModal] = useState<WalletSelectorModal>();
   const [walletSelector, setWalletSelector] = useState<WalletSelector>();
   const [wallet, setWallet] = useState<NearWallet>();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountId, setAccountId] = useState<string>();
+
+  const btcContext = useBtcWalletSelector();
+
+  useEffect(() => {
+    async function init() {
+      console.log('wallet', wallet);
+      console.log('btcContext', btcContext);
+    }
+    init();
+  }, [btcContext]);
 
   useDebouncedEffect(
     () => {
@@ -42,11 +68,12 @@ export default function Page() {
         console.log('near wallet signedIn');
         window.nearWalletSelector?.on('signedIn', handleSignIn);
         window.nearWalletSelector?.on('accountsChanged', handleSignIn);
-      }, 2000);
+      }, 500);
 
       return () => {
         console.log('near wallet signedIn off');
         window.nearWalletSelector?.off('signedIn', handleSignIn);
+        window.nearWalletSelector?.off('accountsChanged', handleSignIn);
       };
     },
     [],
@@ -59,7 +86,11 @@ export default function Page() {
     const selector = await setupWalletSelector({
       network,
       debug: true,
-      modules: [setupCA()],
+      modules: [
+        setupSatoshiWallet({
+          btcContext,
+        }),
+      ],
     });
     setWalletSelector(selector);
     window.nearWalletSelector = selector;
@@ -107,14 +138,20 @@ export default function Page() {
     } as NearWallet;
   }, [wallet, isSignedIn, accountId]);
 
+  useEffect(() => {
+    wallet && btcContext.account && initWalletButton(wallet, btcContext!);
+  }, [wallet, btcContext.account]);
+
   return (
-    <div className="s-container ">
-      <h1>Wallet Selector</h1>
-      <div className="flex items-center gap-5 my-5">
-        <Button onClick={selectWallet}>Select Wallet</Button>
-        <Button onClick={disconnect}>Disconnect</Button>
+    <div className="w-screen h-screen bg-black">
+      <div className="s-container">
+        <h1>Wallet Selector</h1>
+        <div className="flex items-center gap-5 my-5">
+          <Button onClick={selectWallet}>Select Wallet</Button>
+          <Button onClick={disconnect}>Disconnect</Button>
+        </div>
+        <p>Account: {accountId}</p>
       </div>
-      <p>Account: {accountId}</p>
     </div>
   );
 }
