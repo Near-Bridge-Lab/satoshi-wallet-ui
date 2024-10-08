@@ -1,4 +1,5 @@
-import { NEAR_RPC_NODES, NEAR_TOKEN_CONTRACT, TOKEN_WHITE_LIST } from '@/config';
+import { NEAR_RPC_NODES, NEAR_TOKEN_CONTRACT } from '@/config';
+import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 import { formatAmount, formatFileUrl } from '@/utils/format';
 import { connect, keyStores, Near, providers } from 'near-api-js';
@@ -108,7 +109,8 @@ export const nearServices = {
   /** get balance, if tokenAddress is undefined, get NEAR balance */
   async getBalance(address: string) {
     try {
-      const { accountId, tokenMeta } = useWalletStore.getState();
+      const { accountId } = useWalletStore.getState();
+      const { tokenMeta } = useTokenStore.getState();
       if (!address || !accountId) return '0';
       const near = await this.nearConnect();
       const account = await near.account(accountId);

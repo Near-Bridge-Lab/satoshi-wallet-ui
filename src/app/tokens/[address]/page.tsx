@@ -2,8 +2,7 @@
 import Navbar from '@/components/basic/Navbar';
 import { useClient, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
-import { usePriceStore } from '@/stores/price';
-import { useWalletStore } from '@/stores/wallet';
+import { useTokenStore } from '@/stores/token';
 import { formatNumber, formatToken } from '@/utils/format';
 import Big from 'big.js';
 import { useParams } from 'next/navigation';
@@ -16,8 +15,7 @@ import Activity from '@/components/wallet/Activity';
 export default function TokenDetailPage() {
   const { isClient } = useClient();
   const { address } = useParams<{ address: string }>();
-  const { tokenMeta } = useWalletStore();
-  const { prices } = usePriceStore();
+  const { tokenMeta, prices } = useTokenStore();
   const tm = useMemo(() => tokenMeta[address], [address, tokenMeta]);
 
   const { data: balance } = useRequest(() => nearServices.getBalance(address), {

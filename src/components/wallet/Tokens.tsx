@@ -1,19 +1,16 @@
 'use client';
-import { NEAR_TOKEN_CONTRACT } from '@/config';
+import { MAIN_TOKEN } from '@/config';
 import { useDebouncedMemo, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
-import { usePriceStore } from '@/stores/price';
-import { useWalletStore } from '@/stores/wallet';
+import { useTokenStore } from '@/stores/token';
 import { formatNumber, formatToken } from '@/utils/format';
 import { isValidNearAddress } from '@/utils/validate';
 import { Button, Image, Input } from '@nextui-org/react';
 import Big from 'big.js';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Loading from '../basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { useRouter } from 'next/navigation';
 import { useMessageBoxContext } from '@/providers/MessageBoxProvider';
-import { debounce } from 'lodash-es';
 
 export function Tokens({
   mode,
@@ -24,8 +21,7 @@ export function Tokens({
   search?: string;
   onClick?: (token: string) => void;
 }) {
-  const { displayableTokens = [], tokenMeta } = useWalletStore();
-  const { prices } = usePriceStore();
+  const { displayableTokens = [], tokenMeta, prices, balances } = useTokenStore();
 
   const filteredTokens = useDebouncedMemo(
     async () =>
@@ -39,22 +35,6 @@ export function Tokens({
       }),
     [displayableTokens, search, tokenMeta],
     500,
-  );
-
-  const { data: balances } = useRequest(
-    async () => {
-      const res = await Promise.all(
-        displayableTokens.map((token) => nearServices.getBalance(token)),
-      );
-      return res.reduce(
-        (acc, balance, index) => {
-          acc[displayableTokens[index]] = balance;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-    },
-    { pollingInterval: 30000 },
   );
 
   const balancesUSD = useMemo(() => {
@@ -72,8 +52,8 @@ export function Tokens({
   const sortedTokens = useMemo(() => {
     return filteredTokens?.sort((a, b) => {
       // if near is the first token
-      if (a === NEAR_TOKEN_CONTRACT) return -1;
-      if (b === NEAR_TOKEN_CONTRACT) return 1;
+      if (a === MAIN_TOKEN) return -1;
+      if (b === MAIN_TOKEN) return 1;
       return new Big(balancesUSD?.[b] || 0).minus(balancesUSD?.[a] || 0).toNumber();
     });
   }, [balancesUSD, filteredTokens]);
@@ -113,7 +93,7 @@ export function Tokens({
 }
 
 export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
-  const { addToken } = useWalletStore();
+  const { addToken } = useTokenStore();
   const [address, setAddress] = useState('');
 
   const { data: tokenMeta, loading } = useRequest(

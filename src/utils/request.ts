@@ -1,3 +1,4 @@
+import { Wallet } from '@near-wallet-selector/core';
 interface RequestOptions<T> extends RequestInit {
   body?: RequestInit['body'] | any;
   retryCount?: number;
@@ -93,18 +94,21 @@ export default async function request<T>(url: string, options?: RequestOptions<T
   }
 }
 
-export function rpcToParent(action: string, params: any) {
+type RpcToWalletAction = 'signAndSendTransaction';
+type RpcToWallet<T extends RpcToWalletAction> = Parameters<Wallet[T]>[0];
+
+export function rpcToWallet<T extends RpcToWalletAction>(action: T, params: RpcToWallet<T>) {
   return new Promise((resolve, reject) => {
     const requestId = Math.random().toString(36).substring(7);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const origin = urlParams.get('origin') || '';
+    const origin = urlParams.get('origin') || '*';
 
     function handleMessage(event: {
       origin: string;
       data: { requestId: any; result: any; error: any; success: any };
     }) {
-      if (event.origin !== origin) {
+      if (event.origin !== origin && origin !== '*') {
         console.warn('Untrusted message origin:', event.origin);
         return;
       }

@@ -59,3 +59,12 @@ export function formatToken(symbol?: string) {
   if (symbol === 'NBTC') return 'BTC';
   return symbol;
 }
+
+export function parseAmount(amount: string | number | undefined, decimals = 24) {
+  if (!amount) return '';
+  try {
+    return new Big(amount).times(Big(10).pow(decimals)).toFixed(0, Big.roundDown);
+  } catch (error) {
+    return '';
+  }
+}

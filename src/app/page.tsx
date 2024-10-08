@@ -4,6 +4,8 @@ import Activity from '@/components/wallet/Activity';
 import ChainSelector from '@/components/wallet/Chains';
 import { NFTs } from '@/components/wallet/NTFs';
 import Tools from '@/components/wallet/Tools';
+import { MAIN_TOKEN } from '@/config';
+import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 
 import { formatFileUrl, formatNumber, formatSortAddress } from '@/utils/format';
@@ -18,9 +20,10 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from '@nextui-org/react';
+import Big from 'big.js';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 export default function Home() {
   return (
@@ -95,13 +98,20 @@ function Account() {
 }
 
 function Balance({ className }: { className?: string }) {
-  const accountBalance = '0';
+  const { balances, prices, tokenMeta } = useTokenStore();
+  const balance = useMemo(() => balances?.[MAIN_TOKEN], [balances]);
+  const balanceUSD = useMemo(
+    () => new Big(prices?.[tokenMeta[MAIN_TOKEN]?.symbol!] || 0).times(balance || 0).toNumber(),
+    [balance, prices, tokenMeta],
+  );
 
   return (
     <div className={`flex flex-col items-center justify-center gap-2 ${className ?? ''}`}>
-      <div className="text-4xl font-bold">{formatNumber(accountBalance || 0)} BTC</div>
+      <div className="text-4xl font-bold">
+        {formatNumber(balance || 0)} {tokenMeta[MAIN_TOKEN]?.symbol}
+      </div>
       <div className="text-default-500">
-        ≈ {formatNumber(0, { style: 'currency', currency: 'USD' })}
+        ≈ {formatNumber(balanceUSD, { style: 'currency', currency: 'USD' })}
       </div>
     </div>
   );

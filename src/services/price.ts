@@ -13,6 +13,7 @@ export const priceServices = {
     prices['NEAR'] = prices['wNEAR'];
     prices['WETH'] = prices['ETH'];
     prices['BTC'] = prices['WBTC'];
+    prices['NBTC'] = prices['WBTC'];
     return prices;
   },
 };

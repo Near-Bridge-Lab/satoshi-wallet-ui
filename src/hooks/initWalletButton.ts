@@ -85,10 +85,11 @@ export function initWalletButton(
     window.addEventListener('message', async (event) => {
       if (event.origin !== iframeUrl) return;
       const { action, requestId, params } = event.data;
-      console.log('message from iframe', event.data);
       if (action === 'signAndSendTransaction') {
+        console.log('message from iframe', event.data);
         try {
           const result = await wallet.signAndSendTransaction(params);
+          console.log('signAndSendTransaction result', result);
           event.source?.postMessage(
             {
               requestId,
@@ -98,6 +99,7 @@ export function initWalletButton(
             { targetOrigin: event.origin },
           );
         } catch (error: any) {
+          console.error('signAndSendTransaction error', error);
           event.source?.postMessage(
             {
               requestId,

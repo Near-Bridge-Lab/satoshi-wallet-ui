@@ -88,21 +88,18 @@ export function generateUrl(
 
 export const getUrlQuery = (url?: string) => {
   try {
-    // 从URL中提取查询字符串，忽略hash部分
     const search = url
-      ? url.split('?')[1]?.split('#')[0] // 如果有hash，只取hash前的部分
-      : window.location.search.substring(1).split('#')[0]; // 如果没有提供url参数，使用当前页面的URL
+      ? url.split('?')[1]?.split('#')[0]
+      : window.location.search.substring(1).split('#')[0];
     const urlSearchParams = new URLSearchParams(search);
     const entries = urlSearchParams.entries();
     const query = {} as Record<string, any>;
     for (const [key, value] of entries) {
       if (query[key]) {
-        // 如果该键已经存在，则添加到数组中
         query[key] = Array.isArray(query[key])
           ? [...(query[key] as string[]), value]
           : [query[key], value];
       } else {
-        // 否则直接赋值
         query[key] = value;
       }
     }

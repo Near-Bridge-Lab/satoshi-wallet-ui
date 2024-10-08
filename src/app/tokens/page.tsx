@@ -3,7 +3,7 @@ import Navbar from '@/components/basic/Navbar';
 import { ImportToken } from '@/components/wallet/Tokens';
 import { useClient } from '@/hooks/useHooks';
 import { useMessageBoxContext } from '@/providers/MessageBoxProvider';
-import { useWalletStore } from '@/stores/wallet';
+import { useTokenStore } from '@/stores/token';
 import { formatFileUrl, formatToken } from '@/utils/format';
 import { Icon } from '@iconify/react';
 import {
@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react';
 export default function Tokens() {
   const { isClient } = useClient();
 
-  const { hiddenTokens, setHiddenTokens, tokenMeta } = useWalletStore();
+  const { hiddenTokens, setHiddenTokens, tokenMeta } = useTokenStore();
 
   const [search, setSearch] = useState('');
 
