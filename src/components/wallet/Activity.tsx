@@ -1,12 +1,14 @@
 import { useInfiniteScroll, useRequest } from '@/hooks/useHooks';
 import Empty from '../basic/Empty';
-import { useState } from 'react';
-import { transactionServices } from '@/services/tranction';
+import { useCallback, useState } from 'react';
+import { RawTransaction, transactionServices } from '@/services/tranction';
 import Loading from '../basic/Loading';
 import dayjs from 'dayjs';
+import { formatExplorerUrl, formatSortAddress } from '@/utils/format';
+import { Chip, ChipProps, Link } from '@nextui-org/react';
 
 export default function Activity({ address }: { address?: string }) {
-  const [txs, setTxs] = useState<any[]>([]);
+  const [txs, setTxs] = useState<RawTransaction[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
@@ -30,24 +32,63 @@ export default function Activity({ address }: { address?: string }) {
     distance: 50,
   });
 
+  const Status = useCallback((data: RawTransaction) => {
+    const props = {
+      variant: 'flat',
+      size: 'sm',
+      classNames: { base: 'h-5', content: 'text-xs' },
+    } as ChipProps;
+    switch (data.Status) {
+      case 101:
+      case 102:
+        return (
+          <Chip color="danger" {...props}>
+            Failed
+          </Chip>
+        );
+      case 3:
+        return null;
+      // return (
+      //   <Chip color="success" {...props}>
+      //     Success
+      //   </Chip>
+      // );
+      default:
+        return (
+          <Chip color="warning" {...props}>
+            Pending
+          </Chip>
+        );
+    }
+  }, []);
+
   return (
     <div ref={scrollerRef as any} className="w-full">
       {txs.length ? (
         txs.map((tx, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between py-4 border-b border-default-200"
-          >
-            <div className="flex items-center">
-              <img src={tx.icon} alt="" className="w-8 h-8 mr-4" />
-              <div>
-                <div className="text-default-900">{tx.NearHash}</div>
-                <div className="text-default-500">
-                  {dayjs(tx.UpdateTime * 1000).format('YYYY-MM-DD HH:mm')}
+          <div key={index} className="card mb-3">
+            <div className="w-full">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-base">Contract Call</span>
+                  {Status(tx)}
+                </div>
+                <div className="text-default-500 text-xs">
+                  {dayjs(tx.UpdateTime * 1000).format('YYYY/MM/DD HH:mm:ss')}
                 </div>
               </div>
+              <div className="flex items-center gap-3">
+                <Link
+                  className="text-default-500"
+                  href={formatExplorerUrl(tx.NearHash)}
+                  showAnchorIcon
+                  isExternal
+                  size="sm"
+                >
+                  {formatSortAddress(tx.NearHash)}
+                </Link>
+              </div>
             </div>
-            <div className="text-default-900">{tx.amount}</div>
           </div>
         ))
       ) : (

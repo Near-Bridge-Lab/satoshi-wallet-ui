@@ -68,3 +68,11 @@ export function parseAmount(amount: string | number | undefined, decimals = 24) 
     return '';
   }
 }
+
+export function formatExplorerUrl(val: string, type: 'account' | 'transaction' = 'transaction') {
+  return (
+    (process.env.NEXT_PUBLIC_NETWORK === 'mainnet'
+      ? 'https://nearblocks.io'
+      : 'https://testnet.nearblocks.io') + `/${type === 'account' ? 'address' : 'txns'}/${val}`
+  );
+}
