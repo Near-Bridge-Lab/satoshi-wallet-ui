@@ -2,6 +2,7 @@
 import Navbar from '@/components/basic/Navbar';
 import { useTokenSelector } from '@/components/wallet/Tokens';
 import { MAIN_TOKEN } from '@/config';
+import { nearServices } from '@/services/near';
 import { useTokenStore } from '@/stores/token';
 import { formatNumber, formatToken, parseAmount } from '@/utils/format';
 import { rpcToWallet } from '@/utils/request';
@@ -64,9 +65,11 @@ export default function Send() {
 
   async function handleSend(data: SendForm) {
     try {
+      const registerTokenTrans = await nearServices.registerToken(data.token, data.recipient);
       const res = await rpcToWallet('signAndSendTransaction', {
         receiverId: data.token,
         actions: [
+          ...(registerTokenTrans?.actions || []),
           {
             type: 'FunctionCall',
             params: {
@@ -77,7 +80,7 @@ export default function Send() {
                 msg: '',
               },
               deposit: '1',
-              gas: parseAmount(300, 12),
+              gas: parseAmount(100, 12),
             },
           },
         ],
@@ -137,7 +140,11 @@ export default function Send() {
                 size="lg"
                 placeholder="0"
                 type="number"
-                endContent={<span className="font-bold">NEAR</span>}
+                endContent={
+                  <span className="font-bold">
+                    {formatToken(tokenMeta[getValues('token')]?.symbol)}
+                  </span>
+                }
                 {...validator('amount')}
                 variant={validator('amount').isInvalid ? 'bordered' : 'flat'}
                 {...field}

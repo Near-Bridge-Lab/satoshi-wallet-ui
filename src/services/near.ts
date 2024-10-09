@@ -1,7 +1,8 @@
 import { NEAR_RPC_NODES, NEAR_TOKEN_CONTRACT } from '@/config';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
-import { formatAmount, formatFileUrl } from '@/utils/format';
+import { formatAmount, formatFileUrl, parseAmount } from '@/utils/format';
+import { Action } from '@near-wallet-selector/core';
 import { connect, keyStores, Near, providers } from 'near-api-js';
 import { QueryResponseKind } from 'near-api-js/lib/providers/provider';
 
@@ -104,6 +105,7 @@ export const nearServices = {
       : Record<string, TokenMetadata> | undefined;
   },
   async getNearAccountId() {
+    console.log('getNearAccountId', useWalletStore.getState().accountId);
     return useWalletStore.getState().accountId;
   },
   /** get balance, if tokenAddress is undefined, get NEAR balance */
@@ -134,6 +136,37 @@ export const nearServices = {
     } catch (error) {
       console.error(error);
       return '0';
+    }
+  },
+  async registerToken(token: string, recipient?: string) {
+    const accountId = useWalletStore.getState().accountId;
+    const res = await this.query<{
+      available: string;
+      total: string;
+    }>({
+      contractId: token,
+      method: 'storage_balance_of',
+      args: { account_id: recipient || accountId },
+    });
+    console.log('checkFTStorageBalance', res);
+    if (!res?.available || res.available === '0') {
+      return {
+        receiverId: token,
+        actions: [
+          {
+            type: 'FunctionCall',
+            params: {
+              methodName: 'storage_deposit',
+              args: {
+                account_id: recipient || accountId,
+                registration_only: true,
+              },
+              deposit: '1250000000000000000000',
+              gas: parseAmount(100, 12),
+            },
+          },
+        ],
+      } as { receiverId: string; actions: Array<Action> };
     }
   },
 };

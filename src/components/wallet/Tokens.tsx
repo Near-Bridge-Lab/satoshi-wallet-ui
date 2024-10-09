@@ -34,7 +34,7 @@ export function Tokens({
         );
       }),
     [displayableTokens, search, tokenMeta],
-    500,
+    search ? 500 : 0,
   );
 
   const balancesUSD = useMemo(() => {

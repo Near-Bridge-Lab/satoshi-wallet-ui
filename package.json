@@ -29,7 +29,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-toastify": "^10.0.5",
-    "satoshi-wallet": "^1.1.2",
+    "satoshi-wallet": "^1.1.4",
     "zustand": "5.0.0-rc.2"
   },
   "devDependencies": {

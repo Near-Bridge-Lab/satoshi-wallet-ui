@@ -44,6 +44,8 @@ export function initWalletButton(
     let iframeVisible = false;
     let iframe: HTMLIFrameElement | null = null;
 
+    console.log('iframe', iframe);
+
     button.onclick = async function () {
       button.style.transform = 'scale(0.8)';
       setTimeout(() => {

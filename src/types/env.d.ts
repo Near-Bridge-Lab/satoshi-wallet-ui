@@ -6,5 +6,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_AWS_S3_ORIGIN_URL: string;
     NEXT_PUBLIC_AWS_S3_URL: string;
     NEXT_PUBLIC_URL: string;
+    NEXT_PUBLIC_API_URL: string;
   }
 }

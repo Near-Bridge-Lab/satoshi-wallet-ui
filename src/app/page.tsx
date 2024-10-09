@@ -1,14 +1,13 @@
 'use client';
 import Loading from '@/components/basic/Loading';
-import Activity from '@/components/wallet/Activity';
 import ChainSelector from '@/components/wallet/Chains';
-import { NFTs } from '@/components/wallet/NTFs';
 import Tools from '@/components/wallet/Tools';
 import { MAIN_TOKEN } from '@/config';
+import { useClient } from '@/hooks/useHooks';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 
-import { formatFileUrl, formatNumber, formatSortAddress } from '@/utils/format';
+import { formatFileUrl, formatNumber, formatSortAddress, formatToken } from '@/utils/format';
 import { Icon } from '@iconify/react';
 import {
   Button,
@@ -58,46 +57,50 @@ function Header({ className }: { className?: string }) {
 
 function Account() {
   const { accountId, originalAccountId } = useWalletStore();
+  const { isClient } = useClient();
   return (
-    <div className="flex flex-col gap-2 items-center">
-      <div className="font-bold">Near Account</div>
-      <Popover>
-        <PopoverTrigger>
-          <div className="flex items-center gap-2 text-sm text-default-500 bg-foreground/10 h-6 px-2 rounded-full cursor-pointer">
-            <div className="">{formatSortAddress(accountId)}</div>
-            <Icon icon="fluent:chevron-right-12-regular" />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent>
-          <div className="p-1 flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-5">
-              <Image src={formatFileUrl('/assets/chain/near.svg')} width={24} height={24} />
-              <Snippet
-                classNames={{ base: 'bg-transparent p-0' }}
-                codeString={accountId}
-                hideSymbol
-              >
-                {formatSortAddress(accountId)}
-              </Snippet>
+    isClient && (
+      <div className="flex flex-col gap-2 items-center">
+        <div className="font-bold">Near Account</div>
+        <Popover>
+          <PopoverTrigger>
+            <div className="flex items-center gap-2 text-sm text-default-500 bg-foreground/10 h-6 px-2 rounded-full cursor-pointer">
+              <div className="">{formatSortAddress(accountId)}</div>
+              <Icon icon="fluent:chevron-right-12-regular" />
             </div>
-            <div className="flex items-center justify-between gap-5">
-              <Image src={formatFileUrl('/assets/chain/btc.svg')} width={24} height={24} />
-              <Snippet
-                classNames={{ base: 'bg-transparent p-0' }}
-                codeString={originalAccountId}
-                hideSymbol
-              >
-                {formatSortAddress(originalAccountId)}
-              </Snippet>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="p-1 flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-5">
+                <Image src={formatFileUrl('/assets/chain/near.svg')} width={24} height={24} />
+                <Snippet
+                  classNames={{ base: 'bg-transparent p-0' }}
+                  codeString={accountId}
+                  hideSymbol
+                >
+                  {formatSortAddress(accountId)}
+                </Snippet>
+              </div>
+              <div className="flex items-center justify-between gap-5">
+                <Image src={formatFileUrl('/assets/chain/btc.svg')} width={24} height={24} />
+                <Snippet
+                  classNames={{ base: 'bg-transparent p-0' }}
+                  codeString={originalAccountId}
+                  hideSymbol
+                >
+                  {formatSortAddress(originalAccountId)}
+                </Snippet>
+              </div>
             </div>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+    )
   );
 }
 
 function Balance({ className }: { className?: string }) {
+  const { isClient } = useClient();
   const { balances, prices, tokenMeta } = useTokenStore();
   const balance = useMemo(() => balances?.[MAIN_TOKEN], [balances]);
   const balanceUSD = useMemo(
@@ -106,14 +109,16 @@ function Balance({ className }: { className?: string }) {
   );
 
   return (
-    <div className={`flex flex-col items-center justify-center gap-2 ${className ?? ''}`}>
-      <div className="text-4xl font-bold">
-        {formatNumber(balance || 0)} {tokenMeta[MAIN_TOKEN]?.symbol}
+    isClient && (
+      <div className={`flex flex-col items-center justify-center gap-2 ${className ?? ''}`}>
+        <div className="text-4xl font-bold">
+          {formatNumber(balance || 0)} <span>{formatToken(tokenMeta[MAIN_TOKEN]?.symbol)}</span>
+        </div>
+        <div className="text-default-500">
+          ≈ {formatNumber(balanceUSD, { style: 'currency', currency: 'USD' })}
+        </div>
       </div>
-      <div className="text-default-500">
-        ≈ {formatNumber(balanceUSD, { style: 'currency', currency: 'USD' })}
-      </div>
-    </div>
+    )
   );
 }
 
@@ -127,6 +132,17 @@ const Tokens = dynamic(() => import('@/components/wallet/Tokens').then((module) 
   loading: () => <Loading />,
   ssr: false,
 });
+const NFTs = dynamic(() => import('@/components/wallet/NTFs').then((module) => module.NFTs), {
+  loading: () => <Loading />,
+  ssr: false,
+});
+const Activity = dynamic(
+  () => import('@/components/wallet/Activity').then((module) => module.default),
+  {
+    loading: () => <Loading />,
+    ssr: false,
+  },
+);
 
 function Portfolio({ className }: { className?: string }) {
   const router = useRouter();
@@ -145,16 +161,18 @@ function Portfolio({ className }: { className?: string }) {
         >
           {(item) => <Tab key={item.value} title={item.label}></Tab>}
         </Tabs>
-        <Button
-          isIconOnly
-          variant="flat"
-          size="sm"
-          radius="full"
-          className="min-w-7 w-7 h-7 "
-          onClick={() => router.push('/tokens')}
-        >
-          <Icon icon="fluent:add-12-filled" className="text-base text-primary" />
-        </Button>
+        {current === 'tokens' && (
+          <Button
+            isIconOnly
+            variant="flat"
+            size="sm"
+            radius="full"
+            className="min-w-7 w-7 h-7 "
+            onClick={() => router.push('/tokens')}
+          >
+            <Icon icon="fluent:add-12-filled" className="text-base text-primary" />
+          </Button>
+        )}
       </div>
 
       <div>
