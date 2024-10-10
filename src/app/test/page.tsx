@@ -4,7 +4,7 @@ import { nearServices } from '@/services/near';
 import { setupWalletSelector, Wallet, WalletSelector } from '@near-wallet-selector/core';
 import { type WalletSelectorModal, setupModal } from '@near-wallet-selector/modal-ui';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
 import {
@@ -16,6 +16,7 @@ import {
 
 import '@near-wallet-selector/modal-ui/styles.css';
 import { initWalletButton } from '@/hooks/initWalletButton';
+import Loading from '@/components/basic/Loading';
 
 declare global {
   interface Window {
@@ -34,10 +35,12 @@ type NearWallet = Wallet &
 
 export default function Page() {
   return (
-    <BtcWalletSelectorContextProvider>
-      <InitContextHook />
-      <WalletPage />
-    </BtcWalletSelectorContextProvider>
+    <Suspense fallback={<Loading />}>
+      <BtcWalletSelectorContextProvider>
+        <InitContextHook />
+        <WalletPage />
+      </BtcWalletSelectorContextProvider>
+    </Suspense>
   );
 }
 

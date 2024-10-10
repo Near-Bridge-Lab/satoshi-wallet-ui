@@ -1,5 +1,5 @@
 'use client';
-import { useState, createContext, useContext, useCallback, useEffect } from 'react';
+import { useState, createContext, useContext, useCallback, useEffect, Suspense } from 'react';
 import {
   Modal,
   type ModalProps as _ModalProps,
@@ -11,6 +11,7 @@ import {
 } from '@nextui-org/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useDebouncedEffect } from '@/hooks/useHooks';
+import Loading from '@/components/basic/Loading';
 
 type ModalProps = Partial<_ModalProps> & {
   id: string | number;
@@ -130,41 +131,43 @@ export const MessageBoxProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <MessageBoxContext.Provider value={exposes}>
-      {children}
-      {modals.map(({ id, resolve, reject, header, body, footer, close, ...rest }) => (
-        <Modal
-          {...rest}
-          key={id}
-          isOpen={true}
-          onClose={() => {
-            reject?.(id);
-            close?.();
-          }}
-        >
-          <ModalContent>
-            {header && (
-              <ModalHeader>
-                {typeof header === 'function'
-                  ? header({ id, resolve, reject, close, header, body, footer, ...rest })
-                  : header}
-              </ModalHeader>
-            )}
-            <ModalBody>
-              {typeof body === 'function'
-                ? body({ id, resolve, reject, header, close, body, footer, ...rest })
-                : body}
-            </ModalBody>
-            {footer && (
-              <ModalFooter>
-                {typeof footer === 'function'
-                  ? footer({ id, resolve, reject, close, header, body, footer, ...rest })
-                  : footer}
-              </ModalFooter>
-            )}
-          </ModalContent>
-        </Modal>
-      ))}
-    </MessageBoxContext.Provider>
+    <Suspense fallback={<Loading />}>
+      <MessageBoxContext.Provider value={exposes}>
+        {children}
+        {modals.map(({ id, resolve, reject, header, body, footer, close, ...rest }) => (
+          <Modal
+            {...rest}
+            key={id}
+            isOpen={true}
+            onClose={() => {
+              reject?.(id);
+              close?.();
+            }}
+          >
+            <ModalContent>
+              {header && (
+                <ModalHeader>
+                  {typeof header === 'function'
+                    ? header({ id, resolve, reject, close, header, body, footer, ...rest })
+                    : header}
+                </ModalHeader>
+              )}
+              <ModalBody>
+                {typeof body === 'function'
+                  ? body({ id, resolve, reject, header, close, body, footer, ...rest })
+                  : body}
+              </ModalBody>
+              {footer && (
+                <ModalFooter>
+                  {typeof footer === 'function'
+                    ? footer({ id, resolve, reject, close, header, body, footer, ...rest })
+                    : footer}
+                </ModalFooter>
+              )}
+            </ModalContent>
+          </Modal>
+        ))}
+      </MessageBoxContext.Provider>
+    </Suspense>
   );
 };

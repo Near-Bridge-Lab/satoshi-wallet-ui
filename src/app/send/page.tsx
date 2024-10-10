@@ -1,4 +1,5 @@
 'use client';
+import Loading from '@/components/basic/Loading';
 import Navbar from '@/components/basic/Navbar';
 import { useTokenSelector } from '@/components/wallet/Tokens';
 import { MAIN_TOKEN } from '@/config';
@@ -10,7 +11,7 @@ import { Icon } from '@iconify/react';
 import { Button, Image, Input } from '@nextui-org/react';
 import { get } from 'lodash-es';
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
@@ -95,86 +96,88 @@ export default function Send() {
   }
 
   return (
-    <div className="s-container flex flex-col gap-5">
-      <Navbar className="mb-5">
-        <div className="text-lg font-bold text-center">Send</div>
-      </Navbar>
-      <div className="flex-1 flex flex-col gap-8">
-        <div>
-          <div className="card cursor-pointer" onClick={handleSelectToken}>
-            <div className="flex items-center gap-3">
-              <Image src={tokenMeta[getValues('token')]?.icon} width={30} height={30} />
-              <span className="text-base">
-                {formatToken(tokenMeta[getValues('token')]?.symbol)}
-              </span>
+    <Suspense fallback={<Loading />}>
+      <div className="s-container flex flex-col gap-5">
+        <Navbar className="mb-5">
+          <div className="text-lg font-bold text-center">Send</div>
+        </Navbar>
+        <div className="flex-1 flex flex-col gap-8">
+          <div>
+            <div className="card cursor-pointer" onClick={handleSelectToken}>
+              <div className="flex items-center gap-3">
+                <Image src={tokenMeta[getValues('token')]?.icon} width={30} height={30} />
+                <span className="text-base">
+                  {formatToken(tokenMeta[getValues('token')]?.symbol)}
+                </span>
+              </div>
+              <Icon icon="eva:chevron-right-fill" className="text-lg " />
             </div>
-            <Icon icon="eva:chevron-right-fill" className="text-lg " />
           </div>
-        </div>
-        <Controller
-          name="recipient"
-          control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <Input
-              label="To"
-              labelPlacement="outside"
-              size="lg"
-              placeholder="Recipient's address"
-              endContent={<Icon icon="hugeicons:contact-01" className="text-lg" />}
-              {...validator('recipient')}
-              variant={validator('recipient').isInvalid ? 'bordered' : 'flat'}
-              {...field}
-            />
-          )}
-        ></Controller>
-        <div>
           <Controller
-            name="amount"
+            name="recipient"
             control={control}
-            rules={{ required: true, min: 0, max: balance }}
+            rules={{ required: true }}
             render={({ field }) => (
               <Input
-                label="Amount"
+                label="To"
                 labelPlacement="outside"
                 size="lg"
-                placeholder="0"
-                type="number"
-                endContent={
-                  <span className="font-bold">
-                    {formatToken(tokenMeta[getValues('token')]?.symbol)}
-                  </span>
-                }
-                {...validator('amount')}
-                variant={validator('amount').isInvalid ? 'bordered' : 'flat'}
+                placeholder="Recipient's address"
+                endContent={<Icon icon="hugeicons:contact-01" className="text-lg" />}
+                {...validator('recipient')}
+                variant={validator('recipient').isInvalid ? 'bordered' : 'flat'}
                 {...field}
               />
             )}
           ></Controller>
-          <div className="text-default-500 text-right text-xs mt-3">
-            Balance: {formatNumber(balance)} {formatToken(tokenMeta[getValues('token')]?.symbol)}
-            <Button
-              size="sm"
-              color="primary"
-              className="py-0.5 px-2 min-w-min w-auto h-auto ml-2"
-              onClick={() => setValue('amount', balance || '0')}
-            >
-              MAX
-            </Button>
+          <div>
+            <Controller
+              name="amount"
+              control={control}
+              rules={{ required: true, min: 0, max: balance }}
+              render={({ field }) => (
+                <Input
+                  label="Amount"
+                  labelPlacement="outside"
+                  size="lg"
+                  placeholder="0"
+                  type="number"
+                  endContent={
+                    <span className="font-bold">
+                      {formatToken(tokenMeta[getValues('token')]?.symbol)}
+                    </span>
+                  }
+                  {...validator('amount')}
+                  variant={validator('amount').isInvalid ? 'bordered' : 'flat'}
+                  {...field}
+                />
+              )}
+            ></Controller>
+            <div className="text-default-500 text-right text-xs mt-3">
+              Balance: {formatNumber(balance)} {formatToken(tokenMeta[getValues('token')]?.symbol)}
+              <Button
+                size="sm"
+                color="primary"
+                className="py-0.5 px-2 min-w-min w-auto h-auto ml-2"
+                onClick={() => setValue('amount', balance || '0')}
+              >
+                MAX
+              </Button>
+            </div>
           </div>
         </div>
+        <div>
+          <Button
+            color="primary"
+            size="lg"
+            className="font-bold"
+            fullWidth
+            onClick={handleSubmit(handleSend)}
+          >
+            Send
+          </Button>
+        </div>
       </div>
-      <div>
-        <Button
-          color="primary"
-          size="lg"
-          className="font-bold"
-          fullWidth
-          onClick={handleSubmit(handleSend)}
-        >
-          Send
-        </Button>
-      </div>
-    </div>
+    </Suspense>
   );
 }
