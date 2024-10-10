@@ -270,54 +270,42 @@ export const useCountDown = (time: number, step?: 'second' | 'minute') => {
   return count;
 };
 
-export interface UseInfiniteScrollProps {
-  /**
-   * Whether the infinite scroll is enabled.
-   * @default true
-   */
-  isEnabled?: boolean;
-  /**
-   * Whether there are more items to load, the observer will disconnect when there are no more items to load.
-   */
+interface UseInfiniteScrollProps {
   hasMore?: boolean;
-  /**
-   * The distance in pixels before the end of the items that will trigger a call to load more.
-   * @default 250
-   */
   distance?: number;
-  /**
-   * Use loader element for the scroll detection.
-   */
+  isEnabled?: boolean;
   shouldUseLoader?: boolean;
-  /**
-   * Callback to load more items.
-   */
   onLoadMore?: () => void;
+  scrollContainerRef?: React.RefObject<HTMLElement>;
+  loaderRef?: React.RefObject<HTMLElement>;
 }
 
 export function useInfiniteScroll(props: UseInfiniteScrollProps = {}) {
-  const { hasMore, distance = 250, isEnabled = true, shouldUseLoader = true, onLoadMore } = props;
-
-  const scrollContainerRef = useRef<HTMLElement>(null);
-  const loaderRef = useRef<HTMLElement>(null);
+  const {
+    hasMore = true,
+    distance = 250,
+    isEnabled = true,
+    shouldUseLoader = true,
+    onLoadMore,
+    scrollContainerRef,
+    loaderRef,
+  } = props;
 
   const previousY = useRef<number>();
   const previousRatio = useRef<number>(0);
 
   useLayoutEffect(() => {
-    const scrollContainerNode = scrollContainerRef.current;
+    const scrollContainerNode = scrollContainerRef?.current || (window as any);
 
-    if (!isEnabled || !scrollContainerNode || !hasMore) return;
+    if (!isEnabled || !hasMore) return;
 
-    if (shouldUseLoader) {
+    if (shouldUseLoader && loaderRef?.current) {
       const loaderNode = loaderRef.current;
 
-      if (!loaderNode) return;
-
       const options = {
-        root: scrollContainerNode,
+        root: scrollContainerNode === window ? null : scrollContainerNode,
         rootMargin: `0px 0px ${distance}px 0px`,
-      };
+      } as IntersectionObserverInit;
 
       const listener = (entries: IntersectionObserverEntry[]) => {
         entries.forEach(({ isIntersecting, intersectionRatio, boundingClientRect = {} }) => {
@@ -330,13 +318,13 @@ export function useInfiniteScroll(props: UseInfiniteScrollProps = {}) {
           ) {
             onLoadMore?.();
           }
+
           previousY.current = y;
           previousRatio.current = intersectionRatio;
         });
       };
 
       const observer = new IntersectionObserver(listener, options);
-
       observer.observe(loaderNode);
 
       return () => observer.disconnect();
@@ -344,23 +332,35 @@ export function useInfiniteScroll(props: UseInfiniteScrollProps = {}) {
       const debouncedOnLoadMore = onLoadMore ? debounce(onLoadMore, 200) : undefined;
 
       const checkIfNearBottom = () => {
-        if (
-          scrollContainerNode.scrollHeight - scrollContainerNode.scrollTop <=
-          scrollContainerNode.clientHeight + distance
-        ) {
+        const scrollTop =
+          scrollContainerNode === window ? window.pageYOffset : scrollContainerNode.scrollTop;
+        const scrollHeight =
+          scrollContainerNode === window
+            ? document.documentElement.scrollHeight
+            : scrollContainerNode.scrollHeight;
+        const clientHeight =
+          scrollContainerNode === window ? window.innerHeight : scrollContainerNode.clientHeight;
+
+        if (scrollHeight - scrollTop <= clientHeight + distance) {
           debouncedOnLoadMore?.();
         }
       };
 
-      scrollContainerNode.addEventListener('scroll', checkIfNearBottom);
+      if (scrollContainerNode === window) {
+        window.addEventListener('scroll', checkIfNearBottom);
+      } else {
+        scrollContainerNode.addEventListener('scroll', checkIfNearBottom);
+      }
 
       return () => {
-        scrollContainerNode.removeEventListener('scroll', checkIfNearBottom);
+        if (scrollContainerNode === window) {
+          window.removeEventListener('scroll', checkIfNearBottom);
+        } else {
+          scrollContainerNode.removeEventListener('scroll', checkIfNearBottom);
+        }
       };
     }
-  }, [hasMore, distance, isEnabled, onLoadMore, shouldUseLoader]);
-
-  return [loaderRef, scrollContainerRef];
+  }, [hasMore, distance, isEnabled, onLoadMore, shouldUseLoader, loaderRef, scrollContainerRef]);
 }
 
 export function useCopyClipboard() {

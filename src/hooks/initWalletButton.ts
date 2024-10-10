@@ -66,6 +66,7 @@ export function initWalletButton(
         accountId && iframeSrc.searchParams.set('accountId', accountId);
         originalAccountId && iframeSrc.searchParams.set('originalAccountId', originalAccountId);
         originalPublicKey && iframeSrc.searchParams.set('originalPublicKey', originalPublicKey);
+        iframe.id = 'satoshi-wallet-iframe';
         iframe.src = iframeSrc.toString();
 
         Object.assign(iframe.style, {
@@ -116,4 +117,10 @@ export function initWalletButton(
 
     return button;
   }
+}
+export function removeWalletButton() {
+  const button = document.getElementById('satoshi-wallet-button');
+  button?.remove();
+  const iframe = document.getElementById('satoshi-wallet-iframe');
+  iframe?.remove();
 }

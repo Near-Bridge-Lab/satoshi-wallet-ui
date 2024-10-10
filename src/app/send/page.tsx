@@ -2,7 +2,7 @@
 import Loading from '@/components/basic/Loading';
 import Navbar from '@/components/basic/Navbar';
 import { useTokenSelector } from '@/components/wallet/Tokens';
-import { MAIN_TOKEN } from '@/config';
+import { MAIN_TOKEN, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
 import { useTokenStore } from '@/stores/token';
 import { formatNumber, formatToken, parseAmount } from '@/utils/format';
@@ -64,34 +64,51 @@ export default function Send() {
     token && setValue('token', token);
   }
 
+  const [loading, setLoading] = useState(false);
   async function handleSend(data: SendForm) {
     try {
+      setLoading(true);
       const registerTokenTrans = await nearServices.registerToken(data.token, data.recipient);
-      const res = await rpcToWallet('signAndSendTransaction', {
-        receiverId: data.token,
-        actions: [
-          ...(registerTokenTrans?.actions || []),
-          {
-            type: 'FunctionCall',
-            params: {
-              methodName: 'ft_transfer_call',
-              args: {
-                receiver_id: data.recipient,
-                amount: parseAmount(data.amount, tokenMeta[data.token]?.decimals),
-                msg: '',
-              },
-              deposit: '1',
-              gas: parseAmount(100, 12),
+      const res = await rpcToWallet(
+        'signAndSendTransaction',
+        data.token !== NEAR_TOKEN_CONTRACT
+          ? {
+              receiverId: data.token,
+              actions: [
+                ...(registerTokenTrans?.actions || []),
+                {
+                  type: 'FunctionCall',
+                  params: {
+                    methodName: 'ft_transfer_call',
+                    args: {
+                      receiver_id: data.recipient,
+                      amount: parseAmount(data.amount, tokenMeta[data.token]?.decimals),
+                      msg: '',
+                    },
+                    deposit: '1',
+                    gas: parseAmount(100, 12),
+                  },
+                },
+              ],
+            }
+          : {
+              receiverId: data.recipient,
+              actions: [
+                {
+                  type: 'Transfer',
+                  params: { deposit: parseAmount(data.amount, tokenMeta[data.token]?.decimals) },
+                },
+              ],
             },
-          },
-        ],
-      });
+      );
       console.log(res);
       refreshBalance(data.token);
       toast.success('Send success');
     } catch (error) {
       console.error(error);
       toast.error('Send failed');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -172,6 +189,7 @@ export default function Send() {
             size="lg"
             className="font-bold"
             fullWidth
+            isLoading={loading}
             onClick={handleSubmit(handleSend)}
           >
             Send

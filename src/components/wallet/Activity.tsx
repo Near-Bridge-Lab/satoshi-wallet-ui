@@ -1,6 +1,6 @@
 import { useInfiniteScroll, useRequest } from '@/hooks/useHooks';
 import Empty from '../basic/Empty';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { RawTransaction, transactionServices } from '@/services/tranction';
 import Loading from '../basic/Loading';
 import dayjs from 'dayjs';
@@ -26,7 +26,7 @@ export default function Activity({ address }: { address?: string }) {
     setPage(page + 1);
   }
 
-  const [loaderRef, scrollerRef] = useInfiniteScroll({
+  useInfiniteScroll({
     hasMore,
     onLoadMore: loadMore,
     distance: 50,
@@ -63,7 +63,7 @@ export default function Activity({ address }: { address?: string }) {
   }, []);
 
   return (
-    <div ref={scrollerRef as any} className="w-full">
+    <div className="w-full">
       {txs.length ? (
         txs.map((tx, index) => (
           <div key={index} className="card mb-3">
@@ -78,15 +78,17 @@ export default function Activity({ address }: { address?: string }) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Link
-                  className="text-default-500"
-                  href={formatExplorerUrl(tx.NearHash)}
-                  showAnchorIcon
-                  isExternal
-                  size="sm"
-                >
-                  {formatSortAddress(tx.NearHash)}
-                </Link>
+                {tx.NearHash && (
+                  <Link
+                    className="text-default-500"
+                    href={formatExplorerUrl(tx.NearHash)}
+                    showAnchorIcon
+                    isExternal
+                    size="sm"
+                  >
+                    {formatSortAddress(tx.NearHash)}
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -94,7 +96,7 @@ export default function Activity({ address }: { address?: string }) {
       ) : (
         <Empty />
       )}
-      <div ref={loaderRef as any} className="flex justify-center py-4">
+      <div className="flex justify-center py-4">
         <Loading size="sm" loading={loading} />
       </div>
     </div>

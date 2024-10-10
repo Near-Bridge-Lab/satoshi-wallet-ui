@@ -15,7 +15,7 @@ import {
 } from 'satoshi-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
-import { initWalletButton } from '@/hooks/initWalletButton';
+import { initWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
 
 declare global {
@@ -89,11 +89,7 @@ function WalletPage() {
     const selector = await setupWalletSelector({
       network,
       debug: true,
-      modules: [
-        setupSatoshiWallet({
-          btcContext,
-        }),
-      ],
+      modules: [setupSatoshiWallet({})],
     });
     setWalletSelector(selector);
     window.nearWalletSelector = selector;
@@ -142,7 +138,7 @@ function WalletPage() {
   }, [wallet, isSignedIn, accountId]);
 
   useEffect(() => {
-    wallet && btcContext.account && initWalletButton(wallet, btcContext!);
+    wallet && btcContext.account ? initWalletButton(wallet, btcContext!) : removeWalletButton();
   }, [wallet, btcContext.account]);
 
   return (
