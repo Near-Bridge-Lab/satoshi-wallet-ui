@@ -1,7 +1,18 @@
 /** @type {import('next').NextConfig} */
+import dotenv from 'dotenv';
+
+const { parsed: localEnv } = process.env.BUILD_ENV
+  ? dotenv.config({
+      path: `.env.${process.env.BUILD_ENV}`,
+    })
+  : {};
+
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  env: {
+    ...localEnv,
+  },
   images: {
     remotePatterns: [
       {
