@@ -12,6 +12,8 @@ import Tools from '@/components/wallet/Tools';
 import Empty from '@/components/basic/Empty';
 import Activity from '@/components/wallet/Activity';
 
+export const runtime = 'edge';
+
 export default function TokenDetailPage() {
   const { isClient } = useClient();
   const { address } = useParams<{ address: string }>();
