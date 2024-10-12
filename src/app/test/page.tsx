@@ -53,14 +53,6 @@ function WalletPage() {
 
   const btcContext = useBtcWalletSelector();
 
-  useEffect(() => {
-    async function init() {
-      console.log('wallet', wallet);
-      console.log('btcContext', btcContext);
-    }
-    init();
-  }, [btcContext]);
-
   useDebouncedEffect(
     () => {
       initWallet().catch((err) => {
@@ -110,7 +102,6 @@ function WalletPage() {
 
   async function handleSignIn() {
     const wallet = await window.nearWalletSelector?.wallet();
-    console.log('handleSignIn accounts', await wallet?.getAccounts());
     setWallet(wallet);
     const accountId = (await wallet?.getAccounts())?.[0].accountId;
     setAccountId(accountId);
@@ -137,9 +128,9 @@ function WalletPage() {
     } as NearWallet;
   }, [wallet, isSignedIn, accountId]);
 
-  useEffect(() => {
-    wallet && btcContext.account ? initWalletButton(wallet, btcContext!) : removeWalletButton();
-  }, [wallet, btcContext.account]);
+  // useEffect(() => {
+  //   wallet && btcContext.account ? initWalletButton(wallet, btcContext!) : removeWalletButton();
+  // }, [wallet, btcContext.account]);
 
   return (
     <div className="w-screen h-screen bg-black">

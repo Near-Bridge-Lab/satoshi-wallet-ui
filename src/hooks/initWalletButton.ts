@@ -89,7 +89,6 @@ export function initWalletButton(
       if (event.origin !== iframeUrl) return;
       const { action, requestId, params } = event.data;
       if (action === 'signAndSendTransaction') {
-        console.log('message from iframe', event.data);
         try {
           const result = await wallet.signAndSendTransaction(params);
           console.log('signAndSendTransaction result', result);
