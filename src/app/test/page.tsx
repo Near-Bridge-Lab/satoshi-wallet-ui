@@ -15,7 +15,7 @@ import {
 } from 'satoshi-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
-import { initWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
+// import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
 
 declare global {
