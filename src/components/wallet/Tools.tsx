@@ -50,7 +50,9 @@ export default function Tools({
 
   function handleSwap() {}
 
-  function handleBridge() {}
+  function handleBridge() {
+    window.open('https://dev.satoshibridge.top/', '_blank');
+  }
 
   return (
     <div

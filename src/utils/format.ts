@@ -2,30 +2,12 @@ import Big from 'big.js';
 
 export function formatSortAddress(address: string | undefined) {
   if (!address) return '';
+  const maxLength = 15;
 
-  const domainSuffixes = ['.near', '.testnet', '.betanet', '.mainnet'];
-  const maxLength = 20;
-
-  const suffix = domainSuffixes.find((suffix) => address.endsWith(suffix));
-  const isLongAddress = address.length > maxLength;
-
-  if (suffix) {
-    if (isLongAddress) {
-      const visiblePartLength = maxLength - suffix.length - 10;
-      if (visiblePartLength > 0) {
-        return `${address.slice(0, 6)}...${address.slice(
-          -4 - suffix.length,
-          -suffix.length,
-        )}${suffix}`;
-      } else {
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
-      }
-    } else {
-      return address;
-    }
-  } else {
-    return isLongAddress ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
+  if (address.length <= maxLength) {
+    return address;
   }
+  return `${address.slice(0, 5)}...${address.slice(-5)}`;
 }
 
 export function formatNumber(val: string | number | undefined, options?: Intl.NumberFormatOptions) {

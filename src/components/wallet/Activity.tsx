@@ -78,17 +78,18 @@ export default function Activity({ address }: { address?: string }) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                {tx.NearHash && (
+                {tx.NearHashList.map((hash, index) => (
                   <Link
+                    key={index}
                     className="text-default-500"
-                    href={formatExplorerUrl(tx.NearHash)}
+                    href={formatExplorerUrl(hash)}
                     showAnchorIcon
                     isExternal
                     size="sm"
                   >
-                    {formatSortAddress(tx.NearHash)}
+                    {formatSortAddress(hash)}
                   </Link>
-                )}
+                ))}
               </div>
             </div>
           </div>

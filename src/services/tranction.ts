@@ -8,7 +8,7 @@ export interface RawTransaction {
   GasLimit: string;
   GasToken: string;
   Csna: string;
-  NearHash: string;
+  NearHashList: string[];
   NearRegisterHash: string;
   GasCostToken: string;
   GasCostNear: string;

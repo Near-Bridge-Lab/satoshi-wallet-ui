@@ -149,7 +149,7 @@ export const nearServices = {
       args: { account_id: recipient || accountId },
     });
     console.log('checkFTStorageBalance', res);
-    if (!res?.available || res.available === '0') {
+    if (!res?.available) {
       return {
         receiverId: token,
         actions: [
