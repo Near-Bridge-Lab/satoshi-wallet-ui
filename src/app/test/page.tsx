@@ -7,16 +7,12 @@ import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
-import {
-  setupBTCWallet,
-  useBtcWalletSelector,
-  BtcWalletSelectorContextProvider,
-  InitContextHook,
-} from 'btc-wallet';
+import { setupBTCWallet, useBtcWalletSelector, BtcWalletSelectorContextProvider } from 'btc-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
+import { parseAmount } from '@/utils/format';
 
 declare global {
   interface Window {
@@ -37,7 +33,6 @@ export default function Page() {
   return (
     <Suspense fallback={<Loading />}>
       <BtcWalletSelectorContextProvider>
-        <InitContextHook />
         <WalletPage />
       </BtcWalletSelectorContextProvider>
     </Suspense>
@@ -102,6 +97,7 @@ function WalletPage() {
     const wallet = await window.nearWalletSelector?.wallet();
     setWallet(wallet);
     const accountId = (await wallet?.getAccounts())?.[0].accountId;
+    console.log('handleSignIn', accountId);
     setAccountId(accountId);
   }
 
@@ -130,6 +126,33 @@ function WalletPage() {
   //   wallet && btcContext.account ? initWalletButton(wallet, btcContext!) : removeWalletButton();
   // }, [wallet, btcContext.account]);
 
+  const [loading, setLoading] = useState(false);
+  async function handleBatchTransfer() {
+    setLoading(true);
+    const res = await wallet
+      ?.signAndSendTransactions({
+        transactions: [
+          { receiverId: 'wrap.testnet', actions: [{ type: 'Transfer', params: { deposit: '1' } }] },
+          {
+            receiverId: 'nbtc1-nsp.testnet',
+            actions: [
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName: 'ft_transfer',
+                  args: { receiver_id: 'jimi1.testnet', amount: '1', msg: '' },
+                  deposit: '1',
+                  gas: parseAmount(100, 12),
+                },
+              },
+            ],
+          },
+        ],
+      })
+      .finally(() => setLoading(false));
+    console.log(res);
+  }
+
   return (
     <div className="w-screen h-screen bg-black">
       <div className="s-container">
@@ -138,7 +161,10 @@ function WalletPage() {
           <Button onClick={selectWallet}>Select Wallet</Button>
           <Button onClick={disconnect}>Disconnect</Button>
         </div>
-        <p>Account: {accountId}</p>
+        <p className="mb-5">Account: {accountId}</p>
+        <Button isLoading={loading} onClick={handleBatchTransfer}>
+          Batch Transfer
+        </Button>
       </div>
     </div>
   );

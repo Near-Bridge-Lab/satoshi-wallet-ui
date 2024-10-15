@@ -58,7 +58,7 @@ export const nearServices = {
     try {
       if (typeof window === 'undefined') return;
       const { connection } = await this.nearConnect(network);
-      console.log(`${method} args`, args);
+      // console.log(`${method} args`, args);
       const res = await connection.provider.query({
         request_type: 'call_function',
         account_id: contractId,
@@ -69,7 +69,7 @@ export const nearServices = {
       const result = JSON.parse(
         Buffer.from((res as QueryResponseKind & { result: number[] }).result).toString(),
       ) as T;
-      console.log(`${method} ${contractId} result`, result);
+      // console.log(`${method} ${contractId} result`, result);
       return result;
     } catch (error) {
       console.error(`${method} error`, error);
