@@ -79,7 +79,7 @@ export default function Send() {
                 {
                   type: 'FunctionCall',
                   params: {
-                    methodName: 'ft_transfer_call',
+                    methodName: 'ft_transfer',
                     args: {
                       receiver_id: data.recipient,
                       amount: parseAmount(data.amount, tokenMeta[data.token]?.decimals),

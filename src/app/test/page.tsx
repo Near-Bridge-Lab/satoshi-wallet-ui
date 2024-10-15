@@ -8,11 +8,11 @@ import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
 import {
-  setupSatoshiWallet,
+  setupBTCWallet,
   useBtcWalletSelector,
   BtcWalletSelectorContextProvider,
   InitContextHook,
-} from 'satoshi-wallet';
+} from 'btc-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
@@ -51,8 +51,6 @@ function WalletPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountId, setAccountId] = useState<string>();
 
-  const btcContext = useBtcWalletSelector();
-
   useDebouncedEffect(
     () => {
       initWallet().catch((err) => {
@@ -81,7 +79,7 @@ function WalletPage() {
     const selector = await setupWalletSelector({
       network,
       debug: true,
-      modules: [setupSatoshiWallet({})],
+      modules: [setupBTCWallet({})],
     });
     setWalletSelector(selector);
     window.nearWalletSelector = selector;

@@ -35,6 +35,9 @@ importers:
       big.js:
         specifier: ^6.2.2
         version: 6.2.2
+      btc-wallet:
+        specifier: ^0.0.1
+        version: 0.0.1(@near-js/providers@1.0.0)(@types/react@18.3.5)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.2)(utf-8-validate@5.0.10)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -68,9 +71,6 @@ importers:
       react-toastify:
         specifier: ^10.0.5
         version: 10.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      satoshi-wallet:
-        specifier: ^1.2.0
-        version: 1.2.0(@near-js/providers@1.0.0)(@types/react@18.3.5)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.2)(utf-8-validate@5.0.10)
       zustand:
         specifier: 5.0.0-rc.2
         version: 5.0.0-rc.2(@types/react@18.3.5)(react@18.3.1)
@@ -1926,6 +1926,11 @@ packages:
   bs58@6.0.0:
     resolution: {integrity: sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==}
 
+  btc-wallet@0.0.1:
+    resolution: {integrity: sha512-z39/DVR7QTDBAbkDwgUVcmLAudLLJFf8BEoK1imeVu/n47SToG0wZe7Pm4u8L1yFUHIezXaeiS0yuDI8fSKGfw==}
+    peerDependencies:
+      react: '>=17.0.0'
+
   buffer-compare@1.1.1:
     resolution: {integrity: sha512-O6NvNiHZMd3mlIeMDjP6t/gPG75OqGPeiRZXoMQZJ6iy9GofCls4Ijs5YkPZZwoysizLiedhticmdyx/GyHghA==}
 
@@ -3387,11 +3392,6 @@ packages:
   safe-regex-test@1.0.3:
     resolution: {integrity: sha512-CdASjNJPvRa7roO6Ra/gLYBTzYzzPyyBXxIMdGW3USQLyjWEls2RgW5UBTXaQVp+OrpeCK3bLem8smtmheoRuw==}
     engines: {node: '>= 0.4'}
-
-  satoshi-wallet@1.2.0:
-    resolution: {integrity: sha512-EHPvzhhMdBUA+zZEYewJILOfZGYXiL6fCutPaHvO6c0mIdGrXKJZF/QcrF6zcEr9ZMOXoP1byog+57XcFEox9g==}
-    peerDependencies:
-      react: '>=17.0.0'
 
   sats-connect@1.4.1:
     resolution: {integrity: sha512-IDGbgZS+NmURyQ01pUBnDgTuHx7uF9lUrDqKU7+M2YpDLe5NDIkc7oyXh3r+lDWnwfAGCyO31L1tK1+xgT9ThQ==}
@@ -6778,6 +6778,31 @@ snapshots:
     dependencies:
       base-x: 5.0.0
 
+  btc-wallet@0.0.1(@near-js/providers@1.0.0)(@types/react@18.3.5)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.2)(utf-8-validate@5.0.10):
+    dependencies:
+      '@ethereumjs/util': 9.1.0
+      '@near-js/transactions': 1.3.0
+      '@near-wallet-selector/core': 8.9.13(@near-js/providers@1.0.0)(near-api-js@5.0.0)
+      '@particle-network/aa': 1.5.3
+      '@particle-network/chains': 1.7.6
+      '@particle-network/wallet': 1.4.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      bitcore-lib: 10.5.3
+      bs58: 6.0.0
+      near-api-js: 5.0.0
+      react: 18.3.1
+      react-remove-scroll: 2.6.0(@types/react@18.3.5)(react@18.3.1)
+      sats-connect: 1.4.1
+      viem: 2.21.25(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - '@near-js/providers'
+      - '@types/react'
+      - bufferutil
+      - debug
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
+
   buffer-compare@1.1.1: {}
 
   buffer-from@1.1.2: {}
@@ -8397,31 +8422,6 @@ snapshots:
       call-bind: 1.0.7
       es-errors: 1.3.0
       is-regex: 1.1.4
-
-  satoshi-wallet@1.2.0(@near-js/providers@1.0.0)(@types/react@18.3.5)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.2)(utf-8-validate@5.0.10):
-    dependencies:
-      '@ethereumjs/util': 9.1.0
-      '@near-js/transactions': 1.3.0
-      '@near-wallet-selector/core': 8.9.13(@near-js/providers@1.0.0)(near-api-js@5.0.0)
-      '@particle-network/aa': 1.5.3
-      '@particle-network/chains': 1.7.6
-      '@particle-network/wallet': 1.4.6(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      bitcore-lib: 10.5.3
-      bs58: 6.0.0
-      near-api-js: 5.0.0
-      react: 18.3.1
-      react-remove-scroll: 2.6.0(@types/react@18.3.5)(react@18.3.1)
-      sats-connect: 1.4.1
-      viem: 2.21.25(bufferutil@4.0.8)(typescript@5.6.2)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - '@near-js/providers'
-      - '@types/react'
-      - bufferutil
-      - debug
-      - encoding
-      - typescript
-      - utf-8-validate
-      - zod
 
   sats-connect@1.4.1:
     dependencies:

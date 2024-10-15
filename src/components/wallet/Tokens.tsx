@@ -93,7 +93,7 @@ export function Tokens({
 }
 
 export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
-  const { addToken } = useTokenStore();
+  const { addToken, refreshBalance } = useTokenStore();
   const [address, setAddress] = useState('');
 
   const { data: tokenMeta, loading } = useRequest(
@@ -111,6 +111,7 @@ export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
   function handleImport() {
     if (!address || !tokenMeta) return;
     addToken(address);
+    refreshBalance(address);
     setAddress('');
     onSuccess?.();
   }
@@ -135,13 +136,17 @@ export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
               <div className="cursor-pointer" onClick={handlePaste}>
                 <Icon icon="eva:clipboard-outline" />
               </div>
-            ) : null
+            ) : (
+              <div className="cursor-pointer" onClick={() => setAddress('')}>
+                <Icon icon="eva:close-circle-fill" />
+              </div>
+            )
           }
           onChange={(e) => setAddress(e.target.value)}
         />
       </div>
-      {address && (
-        <Loading loading={loading} className="w-full">
+      {address && !loading && (
+        <>
           {tokenMeta ? (
             <div className="card gap-2">
               <Image src={tokenMeta.icon} width={30} height={30} />
@@ -153,15 +158,14 @@ export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
           ) : (
             <div className="text-center text-default-500">Token not found</div>
           )}
-        </Loading>
+        </>
       )}
       <div>
         <Button
           color="primary"
           size="lg"
           onClick={handleImport}
-          isLoading={loading}
-          isDisabled={!address}
+          isDisabled={!address || loading}
           fullWidth
         >
           Import

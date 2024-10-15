@@ -22,13 +22,11 @@ export default function Tools({
       label: 'Swap',
       icon: formatFileUrl('/wallet-assets/swap.svg'),
       action: handleSwap,
-      disabled: true,
     },
     {
       label: 'Bridge',
       icon: formatFileUrl('/wallet-assets/bridge.svg'),
       action: handleBridge,
-      disabled: true,
     },
   ].filter((item) => !actions || actions.includes(item.label.toLowerCase() as Action));
 
@@ -48,7 +46,9 @@ export default function Tools({
     });
   }
 
-  function handleSwap() {}
+  function handleSwap() {
+    window.open('https://app.ref.finance/bridge', '_blank');
+  }
 
   function handleBridge() {
     window.open('https://dev.satoshibridge.top/', '_blank');
@@ -61,7 +61,7 @@ export default function Tools({
       {tools.map((item, index) => (
         <div
           key={index}
-          className={`group flex flex-col items-center justify-center gap-2  ${item.disabled ? 'opacity-50' : 'cursor-pointer'}`}
+          className={`group flex flex-col items-center justify-center gap-2  ${'cursor-pointer'}`}
           onClick={item.action}
         >
           <div className="w-11 h-11 rounded-full bg-default-100  group-hover:bg-default-200 flex items-center justify-center">
