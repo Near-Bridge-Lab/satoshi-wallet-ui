@@ -47,7 +47,7 @@ export default function Tools({
   }
 
   function handleSwap() {
-    window.open('https://app.ref.finance/bridge', '_blank');
+    window.open('https://app.ref.finance/', '_blank');
   }
 
   function handleBridge() {
