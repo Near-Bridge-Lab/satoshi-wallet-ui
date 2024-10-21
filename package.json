@@ -18,7 +18,7 @@
     "@nextui-org/react": "^2.4.8",
     "@types/qrcode": "^1.5.5",
     "big.js": "^6.2.2",
-    "btc-wallet": "^0.0.6",
+    "btc-wallet": "^0.0.7",
     "dayjs": "^1.11.13",
     "framer-motion": "^11.11.8",
     "lodash-es": "^4.17.21",
