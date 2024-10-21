@@ -47,11 +47,11 @@ export default function Tools({
   }
 
   function handleSwap() {
-    window.open('https://app.ref.finance/', '_blank');
+    window.open(process.env.NEXT_PUBLIC_REF_FINANCE_URL, '_blank');
   }
 
   function handleBridge() {
-    window.open('https://dev.satoshibridge.top/', '_blank');
+    window.open(process.env.NEXT_PUBLIC_BRIDGE_URL, '_blank');
   }
 
   return (
