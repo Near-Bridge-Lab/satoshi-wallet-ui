@@ -29,12 +29,8 @@ export function formatAmount(amount: string | number | undefined, decimals = 24)
   }
 }
 
-export function formatFileUrl(key: string, options?: { useS3Url: boolean }) {
-  return `${
-    options?.useS3Url
-      ? process.env.NEXT_PUBLIC_AWS_S3_ORIGIN_URL
-      : process.env.NEXT_PUBLIC_AWS_S3_URL
-  }${key}`;
+export function formatFileUrl(key: string) {
+  return `${process.env.NEXT_PUBLIC_AWS_S3_URL}${key}`;
 }
 
 export function formatToken(symbol?: string) {
