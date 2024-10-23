@@ -134,7 +134,7 @@ function WalletPage() {
         transactions: [
           { receiverId: 'wrap.testnet', actions: [{ type: 'Transfer', params: { deposit: '1' } }] },
           {
-            receiverId: 'nbtc1-nsp.testnet',
+            receiverId: 'nbtc2-nsp.testnet',
             actions: [
               {
                 type: 'FunctionCall',

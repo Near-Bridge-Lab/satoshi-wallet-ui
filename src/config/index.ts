@@ -9,7 +9,7 @@ export const TOKEN_WHITE_LIST = IS_MAINNET
       'usdt.tether-token.near',
       '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
     ]
-  : ['nbtc1-nsp.testnet', 'wrap.testnet', 'usdtt.fakes.testnet', 'deltausdc.testnet'];
+  : ['nbtc2-nsp.testnet', 'wrap.testnet', 'usdtt.fakes.testnet', 'deltausdc.testnet'];
 
 export const MAIN_TOKEN = TOKEN_WHITE_LIST[0];
 
