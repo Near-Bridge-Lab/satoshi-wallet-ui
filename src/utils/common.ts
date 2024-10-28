@@ -105,6 +105,7 @@ export const getUrlQuery = (url?: string) => {
     }
     return query;
   } catch (error) {
+    console.error('getUrlQuery', error);
     return {};
   }
 };

@@ -1,7 +1,4 @@
 import { create } from 'zustand';
-import { getUrlQuery } from '@/utils/common';
-
-const query = getUrlQuery();
 
 export type WalletState = {
   accountId?: string;
@@ -10,21 +7,27 @@ export type WalletState = {
 };
 
 export const useWalletStore = create<WalletState>((set, get) => ({
-  accountId: query.accountId,
-  originalAccountId: query.originalAccountId,
-  originalPublicKey: query.originalPublicKey,
+  accountId: '',
+  originalAccountId: '',
+  originalPublicKey: '',
 }));
 
-function updateFromUrl() {
-  const query = getUrlQuery();
-  useWalletStore.setState({
-    accountId: query.accountId,
-    originalAccountId: query.originalAccountId,
-    originalPublicKey: query.originalPublicKey,
+if (typeof window !== 'undefined') {
+  const urlParams = new URLSearchParams(window.location.search);
+  const origin = urlParams.get('origin') || '*';
+  window.addEventListener('message', (event) => {
+    if (event.origin !== origin && origin !== '*') {
+      console.warn('Untrusted message origin:', event.origin);
+      return;
+    }
+    console.log('event', event.data);
+    const { action, data, error, success } = event.data;
+    if (action === 'initializeData') {
+      useWalletStore.setState({
+        accountId: data.accountId,
+        originalAccountId: data.originalAccountId,
+        originalPublicKey: data.originalPublicKey,
+      });
+    }
   });
-  if (!query.originalPublicKey) {
-    setTimeout(updateFromUrl, 5000);
-  }
 }
-
-updateFromUrl();

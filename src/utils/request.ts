@@ -106,18 +106,18 @@ export function rpcToWallet<T extends RpcToWalletAction>(action: T, params: RpcT
 
     function handleMessage(event: {
       origin: string;
-      data: { requestId: any; result: any; error: any; success: any };
+      data: { requestId: string; data: any; error: string; success: boolean };
     }) {
       if (event.origin !== origin && origin !== '*') {
         console.warn('Untrusted message origin:', event.origin);
         return;
       }
 
-      const { requestId: responseId, result, error, success } = event.data;
+      const { requestId: responseId, data, error, success } = event.data;
 
       if (responseId === requestId) {
         if (success) {
-          resolve(result);
+          resolve(data);
         } else {
           reject(new Error(error));
         }
@@ -131,7 +131,7 @@ export function rpcToWallet<T extends RpcToWalletAction>(action: T, params: RpcT
       {
         action,
         requestId,
-        params,
+        data: params,
       },
       origin,
     );
