@@ -20,7 +20,6 @@ if (typeof window !== 'undefined') {
       console.warn('Untrusted message origin:', event.origin);
       return;
     }
-    console.log('event', event.data);
     const { action, data, error, success } = event.data;
     if (action === 'initializeData') {
       useWalletStore.setState({
