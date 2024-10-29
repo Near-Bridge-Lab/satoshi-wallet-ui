@@ -12,20 +12,17 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   originalPublicKey: '',
 }));
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('message', (event) => {
-    console.log('event.origin', event.origin, event.data?.action);
-    if (event.origin !== window.location.origin) {
-      console.warn('Untrusted message origin:', event.origin);
-      return;
-    }
-    const { action, data, error, success } = event.data;
-    if (action === 'initializeData') {
-      useWalletStore.setState({
-        accountId: data.accountId,
-        originalAccountId: data.originalAccountId,
-        originalPublicKey: data.originalPublicKey,
-      });
-    }
-  });
+function pollUpdateDataFromUrl() {
+  if (typeof window === 'undefined') return;
+  const urlParams = new URLSearchParams(window.location.search);
+  const accountId = urlParams.get('accountId');
+  const originalAccountId = urlParams.get('originalAccountId');
+  const originalPublicKey = urlParams.get('originalPublicKey');
+  if (accountId) useWalletStore.setState({ accountId });
+  if (originalAccountId) useWalletStore.setState({ originalAccountId });
+  if (originalPublicKey) useWalletStore.setState({ originalPublicKey });
 }
+
+pollUpdateDataFromUrl();
+
+setInterval(pollUpdateDataFromUrl, 10000);
