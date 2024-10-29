@@ -13,11 +13,9 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 }));
 
 if (typeof window !== 'undefined') {
-  const urlParams = new URLSearchParams(window.location.search);
-  const origin = urlParams.get('origin') || '*';
   window.addEventListener('message', (event) => {
-    console.log('event.origin', event.origin, origin);
-    if (event.origin !== origin && origin !== '*') {
+    console.log('event.origin', event.origin, event.data?.action);
+    if (event.origin !== window.location.origin) {
       console.warn('Untrusted message origin:', event.origin);
       return;
     }
