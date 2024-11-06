@@ -74,7 +74,7 @@ function WalletPage() {
     const selector = await setupWalletSelector({
       network,
       debug: true,
-      modules: [setupBTCWallet({})],
+      modules: [setupBTCWallet({ isDev: process.env.NEXT_PUBLIC_RUNTIME_ENV === 'development' })],
     });
     setWalletSelector(selector);
     window.nearWalletSelector = selector;
@@ -126,32 +126,32 @@ function WalletPage() {
   //   wallet && btcContext.account ? initWalletButton(wallet, btcContext!) : removeWalletButton();
   // }, [wallet, btcContext.account]);
 
-  const [loading, setLoading] = useState(false);
-  async function handleBatchTransfer() {
-    setLoading(true);
-    const res = await wallet
-      ?.signAndSendTransactions({
-        transactions: [
-          { receiverId: 'wrap.testnet', actions: [{ type: 'Transfer', params: { deposit: '1' } }] },
-          {
-            receiverId: 'nbtc2-nsp.testnet',
-            actions: [
-              {
-                type: 'FunctionCall',
-                params: {
-                  methodName: 'ft_transfer',
-                  args: { receiver_id: 'jimi1.testnet', amount: '1', msg: '' },
-                  deposit: '1',
-                  gas: parseAmount(100, 12),
-                },
-              },
-            ],
-          },
-        ],
-      })
-      .finally(() => setLoading(false));
-    console.log(res);
-  }
+  // const [loading, setLoading] = useState(false);
+  // async function handleBatchTransfer() {
+  //   setLoading(true);
+  //   const res = await wallet
+  //     ?.signAndSendTransactions({
+  //       transactions: [
+  //         { receiverId: 'wrap.testnet', actions: [{ type: 'Transfer', params: { deposit: '1' } }] },
+  //         {
+  //           receiverId:  'nbtc2-nsp.testnet',
+  //           actions: [
+  //             {
+  //               type: 'FunctionCall',
+  //               params: {
+  //                 methodName: 'ft_transfer',
+  //                 args: { receiver_id: 'jimi1.testnet', amount: '1', msg: '' },
+  //                 deposit: '1',
+  //                 gas: parseAmount(100, 12),
+  //               },
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     })
+  //     .finally(() => setLoading(false));
+  //   console.log(res);
+  // }
 
   return (
     <div className="w-screen h-screen bg-black">
@@ -162,9 +162,9 @@ function WalletPage() {
           <Button onClick={disconnect}>Disconnect</Button>
         </div>
         <p className="mb-5">Account: {accountId}</p>
-        <Button isLoading={loading} onClick={handleBatchTransfer}>
+        {/* <Button isLoading={loading} onClick={handleBatchTransfer}>
           Batch Transfer
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
