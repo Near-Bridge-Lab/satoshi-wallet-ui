@@ -7,7 +7,7 @@ import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
-import { setupBTCWallet, useBtcWalletSelector, BtcWalletSelectorContextProvider } from 'btc-wallet';
+import { setupBTCWallet, executeBurrowSupply, BtcWalletSelectorContextProvider } from 'btc-wallet';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
@@ -153,6 +153,11 @@ function WalletPage() {
   //   console.log(res);
   // }
 
+  async function handleBurrowSupply() {
+    console.log('handleBurrowSupply', executeBurrowSupply);
+    await executeBurrowSupply('0.00001', 'dev');
+  }
+
   return (
     <div className="w-screen h-screen bg-black">
       <div className="s-container">
@@ -162,6 +167,7 @@ function WalletPage() {
           <Button onClick={disconnect}>Disconnect</Button>
         </div>
         <p className="mb-5">Account: {accountId}</p>
+        <Button onClick={handleBurrowSupply}>Burrow Supply</Button>
         {/* <Button isLoading={loading} onClick={handleBatchTransfer}>
           Batch Transfer
         </Button> */}
