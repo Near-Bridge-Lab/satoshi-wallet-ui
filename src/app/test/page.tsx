@@ -155,7 +155,7 @@ function WalletPage() {
 
   async function handleBurrowSupply() {
     console.log('handleBurrowSupply', executeBurrowSupply);
-    await executeBurrowSupply('0.00001', 'dev');
+    await executeBurrowSupply({ amount: '0.00001', environment: 'dev' });
   }
 
   return (
