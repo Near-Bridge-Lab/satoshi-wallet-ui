@@ -76,7 +76,9 @@ function WalletPage() {
       network,
       debug: true,
       modules: [
-        setupBTCWallet({ isDev: process.env.NEXT_PUBLIC_RUNTIME_ENV === 'development' }),
+        setupBTCWallet({
+          isDev: process.env.NEXT_PUBLIC_RUNTIME_ENV === 'development',
+        }),
         // setupHotWallet(),
       ],
     });
