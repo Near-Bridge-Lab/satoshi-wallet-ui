@@ -8,7 +8,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
 import { setupBTCWallet, executeBurrowSupply, BtcWalletSelectorContextProvider } from 'btc-wallet';
-// import { setupHotWallet } from '@hot-wallet/sdk/adapter/near';
+import { setupHotWallet } from '@hot-wallet/sdk/adapter/near';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
@@ -79,7 +79,7 @@ function WalletPage() {
         setupBTCWallet({
           isDev: process.env.NEXT_PUBLIC_RUNTIME_ENV === 'development',
         }),
-        // setupHotWallet(),
+        setupHotWallet(),
       ],
     });
     setWalletSelector(selector);
