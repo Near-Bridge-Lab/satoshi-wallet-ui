@@ -13,7 +13,6 @@ import { setupHotWallet } from '@hot-wallet/sdk/adapter/near';
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
-import { parseAmount } from '@/utils/format';
 
 declare global {
   interface Window {
@@ -79,7 +78,7 @@ function WalletPage() {
         setupBTCWallet({
           isDev: process.env.NEXT_PUBLIC_RUNTIME_ENV === 'development',
         }),
-        setupHotWallet(),
+        // setupHotWallet(),
       ],
     });
     setWalletSelector(selector);
