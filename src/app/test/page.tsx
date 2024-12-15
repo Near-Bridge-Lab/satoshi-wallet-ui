@@ -1,5 +1,5 @@
 'use client';
-import { useDebouncedEffect } from '@/hooks/useHooks';
+import { useDebouncedEffect, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { setupWalletSelector, Wallet, WalletSelector } from '@near-wallet-selector/core';
 import { type WalletSelectorModal, setupModal } from '@near-wallet-selector/modal-ui';
@@ -7,12 +7,18 @@ import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '@nextui-org/react';
-import { setupBTCWallet, executeBurrowSupply, BtcWalletSelectorContextProvider } from 'btc-wallet';
+import {
+  setupBTCWallet,
+  executeBTCDepositAndAction,
+  getBtcBalance,
+  BtcWalletSelectorContextProvider,
+} from 'btc-wallet';
 import { setupHotWallet } from '@hot-wallet/sdk/adapter/near';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
+import Big from 'big.js';
 
 declare global {
   interface Window {
@@ -104,6 +110,7 @@ function WalletPage() {
     const accountId = (await wallet?.getAccounts())?.[0].accountId;
     console.log('handleSignIn', accountId);
     setAccountId(accountId);
+    setIsSignedIn(true);
   }
 
   async function disconnect() {
@@ -159,19 +166,37 @@ function WalletPage() {
   // }
 
   async function handleBurrowSupply() {
-    console.log('handleBurrowSupply', executeBurrowSupply);
-    await executeBurrowSupply({ amount: '0.00001', environment: 'dev' });
+    await executeBTCDepositAndAction({
+      action: {
+        receiver_id: 'contract.dev-burrow.testnet',
+        amount: (0.0001 * 10 ** 8).toFixed(0),
+        msg: '',
+      },
+      isDev: true,
+    });
   }
+
+  const { data: btcBalance, run: runBtcBalance } = useRequest(getBtcBalance, {
+    refreshDeps: [accountId],
+  });
 
   return (
     <div className="w-screen h-screen bg-black">
       <div className="s-container">
         <h1>Wallet Selector</h1>
         <div className="flex items-center gap-5 my-5">
-          <Button onClick={selectWallet}>Select Wallet</Button>
-          <Button onClick={disconnect}>Disconnect</Button>
+          {isSignedIn ? (
+            <>
+              {accountId}
+              <Button onClick={disconnect}>Disconnect</Button>
+            </>
+          ) : (
+            <Button onClick={selectWallet}>Select Wallet</Button>
+          )}
         </div>
-        <p className="mb-5">Account: {accountId}</p>
+        <div className="flex items-center gap-5 my-5">
+          BTC Balance: {btcBalance?.balance} <Button onClick={runBtcBalance}>Refresh</Button>
+        </div>
         <Button onClick={handleBurrowSupply}>Burrow Supply</Button>
         {/* <Button isLoading={loading} onClick={handleBatchTransfer}>
           Batch Transfer

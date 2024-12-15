@@ -27,6 +27,6 @@ export const NEAR_RPC_NODES = IS_MAINNET
     }
   : {
       Official: 'https://rpc.testnet.near.org',
-      Lava: 'https://near-testnet.lava.build',
-      Drpc: 'https://near-testnet.drpc.org',
+      // Lava: 'https://near-testnet.lava.build',
+      // Drpc: 'https://near-testnet.drpc.org',
     };
