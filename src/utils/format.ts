@@ -47,10 +47,26 @@ export function parseAmount(amount: string | number | undefined, decimals = 24) 
   }
 }
 
-export function formatExplorerUrl(val: string, type: 'account' | 'transaction' = 'transaction') {
-  return (
-    (process.env.NEXT_PUBLIC_NETWORK === 'mainnet'
+const explorerUrl = {
+  BTC:
+    process.env.NEXT_PUBLIC_NETWORK === 'mainnet'
+      ? 'https://mempool.space'
+      : 'https://mempool.space/testnet',
+  NEAR:
+    process.env.NEXT_PUBLIC_NETWORK === 'mainnet'
       ? 'https://nearblocks.io'
-      : 'https://testnet.nearblocks.io') + `/${type === 'account' ? 'address' : 'txns'}/${val}`
-  );
+      : 'https://testnet.nearblocks.io',
+};
+
+export function formatExplorerUrl(
+  chain: 'BTC' | 'NEAR',
+  val: string,
+  type: 'account' | 'transaction' = 'transaction',
+) {
+  switch (chain) {
+    case 'BTC':
+      return (explorerUrl[chain] ?? '') + `/${type === 'account' ? 'address' : 'tx'}/${val}`;
+    case 'NEAR':
+      return (explorerUrl[chain] ?? '') + `/${type === 'account' ? 'address' : 'txns'}/${val}`;
+  }
 }
