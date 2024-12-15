@@ -186,6 +186,9 @@ BridgeStatusWithdrawLessFee = 102
       ) : (
         <Empty />
       )}
+      <div className="flex justify-center py-4">
+        <Loading size="sm" loading={loading} />
+      </div>
     </div>
   );
 }
