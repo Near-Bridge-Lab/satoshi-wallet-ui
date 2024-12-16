@@ -195,7 +195,9 @@ function WalletPage() {
           )}
         </div>
         <div className="flex items-center gap-5 my-5">
-          BTC Balance: {btcBalance?.balance} <Button onClick={runBtcBalance}>Refresh</Button>
+          BTC Balance: {btcBalance?.balance}
+          Available: {btcBalance?.availableBalance}
+          <Button onClick={runBtcBalance}>Refresh</Button>
         </div>
         <Button onClick={handleBurrowSupply}>Burrow Supply</Button>
         {/* <Button isLoading={loading} onClick={handleBatchTransfer}>
