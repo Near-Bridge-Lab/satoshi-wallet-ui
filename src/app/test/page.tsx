@@ -199,7 +199,7 @@ function WalletPage() {
           Available: {btcBalance?.availableBalance}
           <Button onClick={runBtcBalance}>Refresh</Button>
         </div>
-        <Button onClick={handleBurrowSupply}>Burrow Supply</Button>
+        <Button onClick={handleBurrowSupply}>Burrow Supply 0.0001 BTC</Button>
         {/* <Button isLoading={loading} onClick={handleBatchTransfer}>
           Batch Transfer
         </Button> */}
