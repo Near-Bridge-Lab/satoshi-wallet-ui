@@ -6,7 +6,7 @@ export const BTC_TOKEN_CONTRACT = IS_MAINNET
   ? '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near'
   : process.env.NEXT_PUBLIC_RUNTIME_ENV === 'test'
     ? 'nbtc2-nsp.testnet'
-    : 'nbtc1-nsp.testnet';
+    : 'nbtc-dev.testnet';
 
 export const TOKEN_WHITE_LIST = [
   BTC_TOKEN_CONTRACT,
