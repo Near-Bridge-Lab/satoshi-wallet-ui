@@ -110,12 +110,13 @@ function WalletPage() {
     const accountId = (await wallet?.getAccounts())?.[0].accountId;
     console.log('handleSignIn', accountId);
     setAccountId(accountId);
-    setIsSignedIn(true);
+    setIsSignedIn(!!accountId);
   }
 
   async function disconnect() {
     try {
       await wallet?.signOut();
+      console.log('disconnect', wallet);
       setIsSignedIn(false);
       setAccountId(undefined);
       setWallet(undefined);
@@ -167,11 +168,12 @@ function WalletPage() {
 
   async function handleBurrowSupply() {
     await executeBTCDepositAndAction({
-      action: {
-        receiver_id: 'contract.dev-burrow.testnet',
-        amount: (0.0001 * 10 ** 8).toFixed(0),
-        msg: '',
-      },
+      amount: (0.0001 * 10 ** 8).toFixed(0),
+      // action: {
+      //   receiver_id: 'contract.dev-burrow.testnet',
+      //   amount: (0.0001 * 10 ** 8).toFixed(0),
+      //   msg: '',
+      // },
       isDev: true,
     });
   }
