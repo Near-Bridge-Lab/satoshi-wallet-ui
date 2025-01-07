@@ -18,7 +18,14 @@ import { setupHotWallet } from '@hot-wallet/sdk/adapter/near';
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
-import Big from 'big.js';
+
+const envMap = {
+  stg: 'private_mainnet',
+  test: 'testnet',
+  development: 'testnet',
+  production: 'mainnet',
+} as const;
+const env = envMap[process.env.NEXT_PUBLIC_RUNTIME_ENV as keyof typeof envMap];
 
 declare global {
   interface Window {
@@ -82,7 +89,7 @@ function WalletPage() {
       debug: true,
       modules: [
         setupBTCWallet({
-          isDev: process.env.NEXT_PUBLIC_RUNTIME_ENV === 'development',
+          env,
         }),
         // setupHotWallet(),
       ],
@@ -174,7 +181,7 @@ function WalletPage() {
       //   amount: (0.0001 * 10 ** 8).toFixed(0),
       //   msg: '',
       // },
-      isDev: true,
+      env: envMap[process.env.NEXT_PUBLIC_RUNTIME_ENV as keyof typeof envMap],
     });
   }
 
