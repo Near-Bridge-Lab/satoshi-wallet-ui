@@ -22,7 +22,7 @@ import Loading from '@/components/basic/Loading';
 const envMap = {
   stg: 'private_mainnet',
   test: 'testnet',
-  development: 'testnet',
+  development: 'dev',
   production: 'mainnet',
 } as const;
 const env = envMap[process.env.NEXT_PUBLIC_RUNTIME_ENV as keyof typeof envMap];
