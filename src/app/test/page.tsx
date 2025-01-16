@@ -204,7 +204,10 @@ function WalletPage() {
 
   async function handleWithdraw() {
     if (!depositAmount) return;
-    const res = await getWithdrawTransaction({ amount: depositAmount, env });
+    const res = await getWithdrawTransaction({
+      amount: (Number(depositAmount) * 10 ** 8).toFixed(0),
+      env,
+    });
     console.log(res);
     const tx = await wallet?.signAndSendTransaction(res);
     console.log(tx);
