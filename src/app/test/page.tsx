@@ -4,16 +4,17 @@ import { nearServices } from '@/services/near';
 import { setupWalletSelector, Wallet, WalletSelector } from '@near-wallet-selector/core';
 import { type WalletSelectorModal, setupModal } from '@near-wallet-selector/modal-ui';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Button } from '@nextui-org/react';
+import { Button, Card, CardBody, Input } from '@nextui-org/react';
 import {
   setupBTCWallet,
   executeBTCDepositAndAction,
+  estimateDepositAmount,
   getBtcBalance,
   BtcWalletSelectorContextProvider,
+  getWithdrawTransaction,
 } from 'btc-wallet';
-import { setupHotWallet } from '@hot-wallet/sdk/adapter/near';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
@@ -173,45 +174,88 @@ function WalletPage() {
   //   console.log(res);
   // }
 
+  const [loading, setLoading] = useState(false);
   async function handleBurrowSupply() {
-    await executeBTCDepositAndAction({
-      amount: (0.0001 * 10 ** 8).toFixed(0),
+    if (!depositAmount) return;
+    setLoading(true);
+    const res = await executeBTCDepositAndAction({
+      amount: (Number(depositAmount || 0) * 10 ** 8).toFixed(0),
       // action: {
       //   receiver_id: 'contract.dev-burrow.testnet',
       //   amount: (0.0001 * 10 ** 8).toFixed(0),
       //   msg: '',
       // },
       env: envMap[process.env.NEXT_PUBLIC_RUNTIME_ENV as keyof typeof envMap],
-    });
+    }).finally(() => setLoading(false));
+    console.log(res);
+    toast.success('Deposit Success,message:' + JSON.stringify(res));
   }
 
   const { data: btcBalance, run: runBtcBalance } = useRequest(getBtcBalance, {
     refreshDeps: [accountId],
   });
+  const [depositAmount, setDepositAmount] = useState<string>('0.0001');
+  const [receiveAmount, setReceiveAmount] = useState<string>();
+  async function estimateReceiveAmount() {
+    if (!depositAmount) return;
+    const amount = await estimateDepositAmount((Number(depositAmount || 0) * 10 ** 8).toString());
+    setReceiveAmount(amount.toString());
+  }
+
+  async function handleWithdraw() {
+    if (!depositAmount) return;
+    const res = await getWithdrawTransaction({ amount: depositAmount, env });
+    console.log(res);
+    const tx = await wallet?.signAndSendTransaction(res);
+    console.log(tx);
+  }
 
   return (
     <div className="w-screen h-screen bg-black">
-      <div className="s-container">
-        <h1>Wallet Selector</h1>
-        <div className="flex items-center gap-5 my-5">
-          {isSignedIn ? (
-            <>
-              {accountId}
-              <Button onClick={disconnect}>Disconnect</Button>
-            </>
-          ) : (
-            <Button onClick={selectWallet}>Select Wallet</Button>
-          )}
-        </div>
-        <div className="flex items-center gap-5 my-5">
-          BTC Balance: {btcBalance?.balance}
-          Available: {btcBalance?.availableBalance}
-          <Button onClick={runBtcBalance}>Refresh</Button>
-        </div>
-        <Button onClick={handleBurrowSupply}>Burrow Supply 0.0001 BTC</Button>
-        {/* <Button isLoading={loading} onClick={handleBatchTransfer}>
-          Batch Transfer
-        </Button> */}
+      <div className="s-container flex flex-col gap-5">
+        <Card>
+          <CardBody className="flex items-center gap-5">
+            {isSignedIn ? (
+              <>
+                {accountId}
+                <Button onClick={disconnect}>Disconnect</Button>
+              </>
+            ) : (
+              <Button onClick={selectWallet}>Connect BTC Wallet</Button>
+            )}
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="flex flex-row items-center justify-between gap-2">
+            BTC Balance: {btcBalance?.balance}
+            Available: {btcBalance?.availableBalance}
+            <Button onClick={runBtcBalance}>Refresh</Button>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <div className="flex items-center gap-3 mb-3">
+              <Input
+                type="number"
+                placeholder="Deposit BTC Amount"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />{' '}
+              <Button onClick={estimateReceiveAmount}>Estimate</Button>
+              <Button color="primary" onClick={handleBurrowSupply}>
+                Deposit {depositAmount} BTC
+              </Button>
+            </div>
+            <div>Estimate Receive Amount: {receiveAmount}</div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <Button onClick={handleWithdraw}>Withdraw {receiveAmount} BTC</Button>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );
