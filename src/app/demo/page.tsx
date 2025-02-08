@@ -22,14 +22,7 @@ import '@near-wallet-selector/modal-ui/styles.css';
 import Loading from '@/components/basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { formatAmount, parseAmount } from '@/utils/format';
-
-const envMap = {
-  stg: 'private_mainnet',
-  test: 'testnet',
-  development: 'dev',
-  production: 'mainnet',
-} as const;
-const env = envMap[process.env.NEXT_PUBLIC_RUNTIME_ENV as keyof typeof envMap];
+import { RUNTIME_NETWORK } from '@/config';
 
 declare global {
   interface Window {
@@ -95,7 +88,7 @@ function WalletPage() {
       debug: true,
       modules: [
         setupBTCWallet({
-          env,
+          env: RUNTIME_NETWORK,
         }),
         // setupHotWallet(),
       ],
@@ -191,7 +184,7 @@ function WalletPage() {
         //   amount: (0.0001 * 10 ** 8).toFixed(0),
         //   msg: '',
         // },
-        env,
+        env: RUNTIME_NETWORK,
       });
       toast.success('Deposit Success,message:' + JSON.stringify(res));
     } catch (error) {
@@ -212,7 +205,7 @@ function WalletPage() {
   const [depositAmount, setDepositAmount] = useState<string>('0.0001');
 
   const { data: depositAmountRes, loading: depositAmountLoading } = useRequest(
-    () => getDepositAmount(parseAmount(depositAmount, 8), { env }),
+    () => getDepositAmount(parseAmount(depositAmount, 8), { env: RUNTIME_NETWORK }),
     {
       refreshDeps: [depositAmount, accountId],
       before: () => isSignedIn,
@@ -227,7 +220,7 @@ function WalletPage() {
       setWithdrawLoading(true);
       const res = await getWithdrawTransaction({
         amount: parseAmount(depositAmount, 8),
-        env,
+        env: RUNTIME_NETWORK,
       });
       console.log(res);
       const tx = await wallet?.signAndSendTransaction(res);

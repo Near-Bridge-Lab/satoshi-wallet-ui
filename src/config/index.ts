@@ -24,3 +24,11 @@ export const NEAR_RPC_NODES = IS_MAINNET
       // Lava: 'https://near-testnet.lava.build',
       // Drpc: 'https://near-testnet.drpc.org',
     };
+
+const envMap = {
+  stg: 'private_mainnet',
+  test: 'testnet',
+  development: 'dev',
+  production: 'mainnet',
+} as const;
+export const RUNTIME_NETWORK = envMap[process.env.NEXT_PUBLIC_RUNTIME_ENV as keyof typeof envMap];

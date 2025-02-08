@@ -1,6 +1,7 @@
 'use client';
 import Loading from '@/components/basic/Loading';
 import ChainSelector from '@/components/wallet/Chains';
+import DepositPrompt from '@/components/wallet/DepositPrompt';
 import Tools from '@/components/wallet/Tools';
 import { MAIN_TOKEN } from '@/config';
 import { useClient } from '@/hooks/useHooks';
@@ -27,6 +28,7 @@ import { useMemo, useState } from 'react';
 export default function Home() {
   return (
     <main className="s-container">
+      <DepositPrompt />
       <Header className="mb-10" />
       <Balance className="mb-10" />
       <Tools className="mb-10" />
