@@ -28,7 +28,7 @@ export default function DepositPrompt() {
     }
   }
   return (
-    depositAmountRes?.newAccountMinDepositAmount && (
+    !!depositAmountRes?.newAccountMinDepositAmount && (
       <div className="mb-4">
         <Alert
           variant="faded"
