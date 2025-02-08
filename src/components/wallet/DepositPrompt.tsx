@@ -1,26 +1,39 @@
 'use client';
 import { RUNTIME_NETWORK } from '@/config';
-import { useRequest } from '@/hooks/useHooks';
+import { useDebouncedMemo } from '@/hooks/useHooks';
+import { nearServices } from '@/services/near';
+import { useWalletStore } from '@/stores/wallet';
+import { rpcToWallet } from '@/utils/request';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Alert, Button } from '@nextui-org/react';
-import { executeBTCDepositAndAction, getDepositAmount } from 'btc-wallet';
+import { getConfig } from 'btc-wallet';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function DepositPrompt() {
+  const { accountId } = useWalletStore();
   const depositAmount = '5000';
-  const { data: depositAmountRes } = useRequest(() =>
-    getDepositAmount(depositAmount, { env: RUNTIME_NETWORK }),
-  );
+
+  const isNewAccount = useDebouncedMemo(async () => {
+    if (!accountId) return;
+    const config = await getConfig(RUNTIME_NETWORK);
+    const res = await nearServices.query({
+      contractId: config.accountContractId,
+      method: 'get_account',
+      args: { account_id: accountId },
+    });
+    return !res?.nonce;
+  }, [accountId]);
 
   const [activateLoading, setActivateLoading] = useState(false);
   async function handleActivate() {
     try {
       setActivateLoading(true);
-      const res = await executeBTCDepositAndAction({
+      await rpcToWallet('executeBTCDepositAndAction' as any, {
         amount: depositAmount,
         env: RUNTIME_NETWORK,
       });
-      console.log(res);
+      toast.success('Activate success');
     } catch (error) {
       console.error(error);
     } finally {
@@ -28,7 +41,7 @@ export default function DepositPrompt() {
     }
   }
   return (
-    !!depositAmountRes?.newAccountMinDepositAmount && (
+    isNewAccount && (
       <div className="mb-4">
         <Alert
           variant="faded"
