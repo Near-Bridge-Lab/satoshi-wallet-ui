@@ -187,7 +187,7 @@ BridgeStatusWithdrawLessFee = 102
         <Empty />
       )}
       <div className="flex justify-center py-4">
-        <Loading size="sm" loading={loading} />
+        <Loading loading={loading} />
       </div>
     </div>
   );
@@ -284,7 +284,7 @@ export function TransactionHistory({ address }: { address?: string }) {
         <Empty />
       )}
       <div className="flex justify-center py-4">
-        <Loading size="sm" loading={loading} />
+        <Loading loading={loading} />
       </div>
     </div>
   );
