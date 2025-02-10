@@ -62,10 +62,12 @@ export const useTokenStore = create<State>((set, get) => ({
 
 function subscribeTokensChange(store: StoreApi<State>) {
   const initState = store.getState();
-  initState.tokens?.length &&
+
+  if (initState.tokens?.length) {
     queryTokenMetadata(initState.tokens)?.then((tokenMeta) => {
       initState.setTokenMeta(tokenMeta || {});
     });
+  }
 
   store.subscribe(async (state, prevState) => {
     if (state.tokens && !isEqual(state.tokens, prevState.tokens)) {
@@ -86,7 +88,9 @@ function queryTokenMetadata(tokens: string[]) {
   try {
     const unFetchedTokens = tokens?.filter((token) => !useTokenStore.getState().tokenMeta?.[token]);
     return nearServices.queryTokenMetadata(unFetchedTokens);
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function pollingQueryPrice(store: StoreApi<State>) {
@@ -110,9 +114,24 @@ async function pollingQueryBalance(store: StoreApi<State>) {
     );
     store.setState({ balances });
   }
-  setTimeout(() => pollingQueryBalance(store), 30000);
+  setTimeout(
+    () => pollingQueryBalance(store),
+    process.env.NODE_ENV === 'development' ? 120000 : 30000,
+  );
 }
 
-subscribeTokensChange(useTokenStore);
-pollingQueryPrice(useTokenStore);
-pollingQueryBalance(useTokenStore);
+async function initializeStore() {
+  try {
+    await subscribeTokensChange(useTokenStore);
+    pollingQueryPrice(useTokenStore);
+    pollingQueryBalance(useTokenStore);
+  } catch (error) {
+    console.error('initialize store failed:', error);
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => {
+    initializeStore();
+  });
+}

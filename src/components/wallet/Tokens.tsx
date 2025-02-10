@@ -7,7 +7,7 @@ import { formatNumber, formatToken } from '@/utils/format';
 import { isValidNearAddress } from '@/utils/validate';
 import { Button, Image, Input } from '@nextui-org/react';
 import Big from 'big.js';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Loading from '../basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useMessageBoxContext } from '@/providers/MessageBoxProvider';
@@ -22,6 +22,14 @@ export function Tokens({
   onClick?: (token: string) => void;
 }) {
   const { displayableTokens = [], tokenMeta, prices, balances } = useTokenStore();
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (displayableTokens.every((token) => tokenMeta[token]?.icon)) {
+      setIsLoading(false);
+    }
+  }, [tokenMeta, displayableTokens]);
 
   const filteredTokens = useDebouncedMemo(
     async () =>
@@ -58,6 +66,10 @@ export function Tokens({
     });
   }, [balancesUSD, filteredTokens]);
 
+  if (isLoading) {
+    return <Loading className="flex items-center justify-center min-h-[200px]" />;
+  }
+
   return (
     <div className={`flex flex-col ${mode === 'select' ? 'gap-1' : 'gap-4'}`}>
       {sortedTokens?.map((token, index) => (
@@ -67,7 +79,14 @@ export function Tokens({
           onClick={() => onClick?.(token)}
         >
           <div className="flex items-center gap-2">
-            <Image src={tokenMeta[token]?.icon} width={30} height={30} />
+            {tokenMeta[token]?.icon && (
+              <Image
+                src={tokenMeta[token]?.icon}
+                width={30}
+                height={30}
+                alt={tokenMeta[token]?.symbol || 'token'}
+              />
+            )}
             <div>
               <div className="text-base font-bold">{formatToken(tokenMeta[token]?.symbol)}</div>
               <div className="text-xs text-default-500">
@@ -131,7 +150,7 @@ export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
           value={address}
           endContent={
             loading ? (
-              <Loading className="flex items-center justify-center" size="sm" loading={true} />
+              <Loading className="flex items-center justify-center" loading={true} />
             ) : !address ? (
               <div className="cursor-pointer" onClick={handlePaste}>
                 <Icon icon="eva:clipboard-outline" />

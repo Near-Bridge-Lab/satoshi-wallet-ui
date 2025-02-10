@@ -131,17 +131,17 @@ const portfolios = [
 ];
 
 const Tokens = dynamic(() => import('@/components/wallet/Tokens').then((module) => module.Tokens), {
-  loading: () => <Loading />,
+  loading: () => <Loading className="flex items-center justify-center min-h-[200px]" />,
   ssr: false,
 });
 const NFTs = dynamic(() => import('@/components/wallet/NTFs').then((module) => module.NFTs), {
-  loading: () => <Loading />,
+  loading: () => <Loading className="flex items-center justify-center min-h-[200px]" />,
   ssr: false,
 });
 const Activity = dynamic(
   () => import('@/components/wallet/Activity').then((module) => module.default),
   {
-    loading: () => <Loading />,
+    loading: () => <Loading className="flex items-center justify-center min-h-[200px]" />,
     ssr: false,
   },
 );
