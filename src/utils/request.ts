@@ -94,10 +94,13 @@ export default async function request<T>(url: string, options?: RequestOptions<T
   }
 }
 
-type RpcToWalletAction = 'signAndSendTransaction';
+type RpcToWalletAction = 'signAndSendTransaction' | 'signAndSendTransactions';
 type RpcToWallet<T extends RpcToWalletAction> = Parameters<Wallet[T]>[0];
 
-export function rpcToWallet<T extends RpcToWalletAction>(action: T, params: RpcToWallet<T>) {
+export function rpcToWallet<T extends RpcToWalletAction>(
+  action: T,
+  params: RpcToWallet<T>,
+): Promise<any> {
   return new Promise((resolve, reject) => {
     const requestId = Math.random().toString(36).substring(7);
 

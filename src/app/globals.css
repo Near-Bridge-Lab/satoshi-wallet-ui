@@ -21,3 +21,9 @@ body {
     text-wrap: balance;
   }
 }
+
+.toast-container {
+  --toastify-color-success: var(--primary);
+  --toastify-color-progress-success: var(--toastify-color-success);
+  --toastify-icon-color-success: var(--toastify-color-success);
+}

@@ -10,13 +10,126 @@ export function formatSortAddress(address: string | undefined) {
   return `${address.slice(0, 5)}...${address.slice(-5)}`;
 }
 
-export function formatNumber(val: string | number | undefined, options?: Intl.NumberFormatOptions) {
-  if (!val) return 0;
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
-    ...options,
-  }).format(Number(val));
+interface FormatNumberOptions {
+  rm?: Big.RoundingMode;
+  displayMinimum?: boolean;
+  displayDecimals?: number;
+  useUnit?: boolean;
+}
+export function formatNumber(val: string | number | undefined, options?: FormatNumberOptions) {
+  if (!val || !Number(val)) return '0';
+  const { rm = Big.roundHalfUp, displayMinimum = true, useUnit } = options || {};
+
+  const bigVal = new Big(val);
+
+  let displayDecimals = options?.displayDecimals;
+  if (displayDecimals === undefined) {
+    const absVal = bigVal.abs();
+    if (absVal.eq(0)) {
+      displayDecimals = 0;
+    } else if (absVal.gte(1)) {
+      displayDecimals = 2;
+    } else {
+      const str = absVal.toFixed();
+      const match = str.match(/^0\.0*/);
+      if (match) {
+        displayDecimals = Math.min(match[0].length - 1 + 2, 16);
+      } else {
+        displayDecimals = 2;
+      }
+    }
+  }
+  displayDecimals = Math.min(displayDecimals, 8);
+
+  if (useUnit) {
+    if (bigVal.gte(1e9)) {
+      return new Big(bigVal.div(1e9)).round(1).toString() + 'B';
+    }
+    if (bigVal.gte(1e6)) {
+      return new Big(bigVal.div(1e6)).round(1).toString() + 'M';
+    }
+    if (bigVal.gte(1e3)) {
+      return new Big(bigVal.div(1e3)).round(1).toString() + 'K';
+    }
+  }
+
+  const min = new Big(10).pow(-displayDecimals);
+  const roundedVal = bigVal.round(displayDecimals, rm);
+
+  if (displayMinimum && roundedVal.abs().lt(min)) {
+    const formattedMin = new Intl.NumberFormat('en-US', {
+      style: 'decimal',
+      maximumFractionDigits: displayDecimals,
+    }).format(min.toNumber());
+
+    return `< ${roundedVal.lt(0) ? '-' : ''}${formattedMin}`;
+  }
+
+  const formattedValue = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    maximumFractionDigits: displayDecimals,
+  }).format(roundedVal.toNumber());
+
+  return formattedValue;
+}
+
+const subscriptNumbers = [
+  '₀',
+  '₁',
+  '₂',
+  '₃',
+  '₄',
+  '₅',
+  '₆',
+  '₇',
+  '₈',
+  '₉',
+  '₁₀',
+  '₁₁',
+  '₁₂',
+  '₁₃',
+  '₁₄',
+  '₁₅',
+  '₁₆',
+  '₁₇',
+  '₁₈',
+  '₁₉',
+  '₂₀',
+];
+
+export function formatNumberWithSubscript(value: string | number): string {
+  const strVal = value.toString();
+  const parts = strVal.split('.');
+  if (parts.length <= 1) return strVal;
+
+  const leadingZeros = parts[1].match(/^0+/)?.[0]?.length || 0;
+
+  if (leadingZeros > 3 && leadingZeros <= 20) {
+    const remainingDigits = parts[1].slice(leadingZeros);
+
+    let significantDigits = 4;
+    if (leadingZeros > 15) {
+      significantDigits = 2;
+    } else if (leadingZeros > 10) {
+      significantDigits = 3;
+    }
+
+    const truncatedDigits = remainingDigits.slice(0, significantDigits);
+    const subscriptNumber = subscriptNumbers[leadingZeros];
+    parts[1] = '0' + subscriptNumber + truncatedDigits;
+  } else {
+    let significantDigits = 4;
+    if (parts[1].length > significantDigits) {
+      parts[1] = parts[1].slice(0, significantDigits);
+    }
+  }
+
+  return parts.join('.');
+}
+
+export function formatPrice(price: string | number | undefined, options?: FormatNumberOptions) {
+  if (!price) return '0';
+  return new Big(price).lt(1) ? formatNumberWithSubscript(price) : formatNumber(price, options);
 }
 
 export function formatAmount(amount: string | number | undefined, decimals = 24) {

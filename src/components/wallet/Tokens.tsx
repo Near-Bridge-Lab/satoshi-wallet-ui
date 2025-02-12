@@ -3,7 +3,7 @@ import { MAIN_TOKEN } from '@/config';
 import { useDebouncedMemo, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { useTokenStore } from '@/stores/token';
-import { formatNumber, formatToken } from '@/utils/format';
+import { formatNumber, formatPrice, formatToken } from '@/utils/format';
 import { isValidNearAddress } from '@/utils/validate';
 import { Button, Image, Input } from '@nextui-org/react';
 import Big from 'big.js';
@@ -90,19 +90,14 @@ export function Tokens({
             <div>
               <div className="text-base font-bold">{formatToken(tokenMeta[token]?.symbol)}</div>
               <div className="text-xs text-default-500">
-                {tokenMeta[token]?.symbol
-                  ? formatNumber(prices?.[tokenMeta[token]?.symbol], {
-                      style: 'currency',
-                      currency: 'USD',
-                    })
-                  : '-'}
+                {tokenMeta[token]?.symbol ? formatPrice(prices?.[tokenMeta[token]?.symbol]) : '-'}
               </div>
             </div>
           </div>
           <div>
             <div className="text-base font-bold text-right">{formatNumber(balances?.[token])}</div>
             <div className="text-xs text-default-500 text-right">
-              {formatNumber(balancesUSD?.[token], { style: 'currency', currency: 'USD' })}
+              ${formatPrice(balancesUSD?.[token])}
             </div>
           </div>
         </div>

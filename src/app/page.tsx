@@ -8,7 +8,13 @@ import { useClient } from '@/hooks/useHooks';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 
-import { formatFileUrl, formatNumber, formatSortAddress, formatToken } from '@/utils/format';
+import {
+  formatFileUrl,
+  formatNumber,
+  formatPrice,
+  formatSortAddress,
+  formatToken,
+} from '@/utils/format';
 import { Icon } from '@iconify/react';
 import {
   Button,
@@ -116,9 +122,7 @@ function Balance({ className }: { className?: string }) {
         <div className="text-4xl font-bold">
           {formatNumber(balance || 0)} <span>{formatToken(tokenMeta[MAIN_TOKEN]?.symbol)}</span>
         </div>
-        <div className="text-default-500">
-          ≈ {formatNumber(balanceUSD, { style: 'currency', currency: 'USD' })}
-        </div>
+        <div className="text-default-500">≈ ${formatPrice(balanceUSD)}</div>
       </div>
     )
   );

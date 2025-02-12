@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 export default function Navbar({
   className,
   children,
+  endContent,
 }: {
   children?: React.ReactNode;
   className?: string;
+  endContent?: React.ReactNode;
 }) {
   const router = useRouter();
   return (
@@ -24,6 +26,7 @@ export default function Navbar({
         <Icon icon="fluent:chevron-left-12-filled" className="text-lg" />
       </Button>
       <div className="flex-1">{children}</div>
+      {endContent}
     </div>
   );
 }

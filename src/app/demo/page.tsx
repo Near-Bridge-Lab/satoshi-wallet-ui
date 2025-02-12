@@ -98,6 +98,7 @@ function WalletPage() {
 
     const modal = setupModal(selector, {
       contractId: '',
+      theme: 'dark',
     });
     setWalletSelectorModal(modal);
 
@@ -208,7 +209,7 @@ function WalletPage() {
     () => getDepositAmount(parseAmount(depositAmount, 8), { env: RUNTIME_NETWORK }),
     {
       refreshDeps: [depositAmount, accountId],
-      before: () => isSignedIn,
+      before: () => !!accountId,
       debounceOptions: 1000,
     },
   );

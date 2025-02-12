@@ -2,9 +2,10 @@ import { NEAR_RPC_NODES, NEAR_TOKEN_CONTRACT } from '@/config';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 import { formatAmount, formatFileUrl, parseAmount } from '@/utils/format';
-import { Action } from '@near-wallet-selector/core';
+import { Action, Transaction } from '@near-wallet-selector/core';
 import { connect, keyStores, Near, providers } from 'near-api-js';
-import { QueryResponseKind } from 'near-api-js/lib/providers/provider';
+import { FinalExecutionOutcome, QueryResponseKind } from 'near-api-js/lib/providers/provider';
+import { toast } from 'react-toastify';
 
 export const nearServices = {
   getNearConnectionConfig(network = process.env.NEXT_PUBLIC_NETWORK) {
@@ -104,9 +105,10 @@ export const nearServices = {
       ? TokenMetadata | undefined
       : Record<string, TokenMetadata> | undefined;
   },
-  async getNearAccountId() {
-    console.log('getNearAccountId', useWalletStore.getState().accountId);
-    return useWalletStore.getState().accountId;
+  getNearAccountId() {
+    const accountId = useWalletStore.getState().accountId;
+    console.log('current near accountId', accountId);
+    return accountId;
   },
   /** get balance, if tokenAddress is undefined, get NEAR balance */
   async getBalance(address: string) {
@@ -166,7 +168,29 @@ export const nearServices = {
             },
           },
         ],
-      } as { receiverId: string; actions: Array<Action> };
+      } as Transaction;
+    }
+  },
+  handleTransactionResult<T extends FinalExecutionOutcome | FinalExecutionOutcome[]>(
+    outcome: T,
+  ): T | undefined {
+    if (!outcome) return;
+    if (Array.isArray(outcome)) {
+      // @ts-expect-error fix
+      const errorMessage = outcome.find((o) => o.status?.Failure?.ActionError)?.status.Failure
+        .ActionError as string;
+      if (errorMessage) {
+        throw new Error(JSON.stringify(errorMessage));
+      }
+      return outcome;
+    } else {
+      // @ts-expect-error fix
+      const errorMessage = outcome.status?.Failure?.ActionError as string;
+      if (errorMessage) {
+        toast.error(errorMessage);
+        throw new Error(JSON.stringify(errorMessage));
+      }
+      if (typeof outcome === 'object') return outcome;
     }
   },
 };

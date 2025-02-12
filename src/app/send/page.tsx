@@ -143,6 +143,7 @@ export default function Send() {
                 endContent={<Icon icon="hugeicons:contact-01" className="text-lg" />}
                 {...validator('recipient')}
                 variant={validator('recipient').isInvalid ? 'bordered' : 'flat'}
+                validationBehavior="aria"
                 {...field}
               />
             )}
@@ -166,6 +167,7 @@ export default function Send() {
                   }
                   {...validator('amount')}
                   variant={validator('amount').isInvalid ? 'bordered' : 'flat'}
+                  validationBehavior="aria"
                   {...field}
                 />
               )}

@@ -3,7 +3,7 @@ import Navbar from '@/components/basic/Navbar';
 import { useClient, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { useTokenStore } from '@/stores/token';
-import { formatNumber, formatToken } from '@/utils/format';
+import { formatNumber, formatPrice, formatToken } from '@/utils/format';
 import Big from 'big.js';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
@@ -42,9 +42,7 @@ export default function TokenDetailPage() {
           <div className="text-lg font-bold">
             {formatNumber(balance)} {formatToken(tm?.symbol)}
           </div>
-          <div className="text-default-500">
-            {formatNumber(balancesUSD, { style: 'currency', currency: 'USD' })}
-          </div>
+          <div className="text-default-500">${formatPrice(balancesUSD)}</div>
         </div>
         <Tools address={address} actions={['send', 'receive']} />
         <div className="mt-8">

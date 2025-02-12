@@ -7,7 +7,7 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
   return (
     <>
       {children}
-      <ToastContainer />
+      <ToastContainer theme="dark" className="toast-container" />
     </>
   );
 }

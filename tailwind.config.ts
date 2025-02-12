@@ -13,6 +13,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: 'var(--primary)',
+        danger: 'rgb(255, 75, 118)',
       },
     },
   },

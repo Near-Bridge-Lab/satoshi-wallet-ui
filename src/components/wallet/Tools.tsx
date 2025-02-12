@@ -47,7 +47,7 @@ export default function Tools({
   }
 
   function handleSwap() {
-    window.open(process.env.NEXT_PUBLIC_REF_FINANCE_URL, '_blank');
+    router.push('/swap');
   }
 
   function handleBridge() {
