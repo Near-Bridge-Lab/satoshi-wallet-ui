@@ -349,6 +349,7 @@ export default function Swap() {
                           placeholder="0"
                           {...validator('amountIn')}
                           validationBehavior="aria"
+                          autoComplete="off"
                           onChange={(e) => {
                             const value = e.target.value.replace(/[^\d.]/g, '');
                             const dots = value.match(/\./g)?.length || 0;

@@ -225,6 +225,7 @@ export function TransactionHistory({ address }: { address?: string }) {
       classNames: { base: 'h-5', content: 'text-xs' },
     } as ChipProps;
     switch (data.Status) {
+      case 99:
       case 101:
       case 102:
         return (
