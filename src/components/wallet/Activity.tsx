@@ -263,7 +263,7 @@ export function TransactionHistory({ address }: { address?: string }) {
                   {dayjs(tx.UpdateTime * 1000).format('YYYY/MM/DD HH:mm:ss')}
                 </div>
               </div>
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 {tx.NearHashList.map((hash, index) => (
                   <Link
                     key={index}
