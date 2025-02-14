@@ -1,4 +1,5 @@
 import Big from 'big.js';
+Big.DP = 24;
 
 export function formatSortAddress(address: string | undefined) {
   if (!address) return '';

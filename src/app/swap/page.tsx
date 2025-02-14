@@ -486,7 +486,7 @@ export default function Swap() {
                 <div className="flex justify-between gap-2">
                   <span>Price</span>
                   <span className="flex-1 flex items-center justify-end gap-2">
-                    <span className="flex-1 truncate max-w-[200px]">{displayPrice}</span>
+                    <span className="flex-1 truncate max-w-[200px] text-right">{displayPrice}</span>
                     <Button
                       isIconOnly
                       size="sm"
