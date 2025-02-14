@@ -22,7 +22,7 @@ import '@near-wallet-selector/modal-ui/styles.css';
 import Loading from '@/components/basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { formatAmount, parseAmount } from '@/utils/format';
-import { RUNTIME_NETWORK } from '@/config';
+import { NEAR_RPC_NODES, RUNTIME_NETWORK } from '@/config';
 
 declare global {
   interface Window {
@@ -85,6 +85,7 @@ function WalletPage() {
 
     const selector = await setupWalletSelector({
       network,
+      fallbackRpcUrls: Object.values(NEAR_RPC_NODES),
       debug: true,
       modules: [
         setupBTCWallet({

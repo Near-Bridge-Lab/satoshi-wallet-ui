@@ -28,6 +28,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Big from 'big.js';
 import { useClient, useRequest } from '@/hooks/useHooks';
+import { transactionServices } from '@/services/tranction';
 
 interface SwapForm {
   tokenIn: string;
@@ -379,7 +380,15 @@ export default function Swap() {
                         variant="light"
                         color="primary"
                         className="ml-2 p-0 min-w-0 h-auto"
-                        onClick={() => setValue('amountIn', balanceIn || '0')}
+                        onClick={() =>
+                          setValue(
+                            'amountIn',
+                            transactionServices.getMaxTransferAmount(
+                              getValues('tokenIn'),
+                              balanceIn,
+                            ),
+                          )
+                        }
                       >
                         MAX
                       </Button>
@@ -474,10 +483,10 @@ export default function Swap() {
             {/* Swap Details */}
             {new Big(amountIn).gt(0) && swapResult && (
               <div className="mt-5  bg-default-50 p-4 rounded-lg text-sm text-default-500 leading-8">
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span>Price</span>
-                  <span className="flex items-center gap-2">
-                    {displayPrice}{' '}
+                  <span className="flex-1 flex items-center justify-end gap-2">
+                    <span className="flex-1 truncate max-w-[200px]">{displayPrice}</span>
                     <Button
                       isIconOnly
                       size="sm"
@@ -488,7 +497,7 @@ export default function Swap() {
                     </Button>
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span>Price impact</span>
                   <span
                     className={
@@ -506,13 +515,13 @@ export default function Swap() {
                       : '0%'}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span>Minimum received</span>
-                  <span>
+                  <span className="truncate">
                     {formatNumber(swapResult.minAmountOut)} {tokenMeta[tokenOut]?.symbol}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span>Slippage</span>
                   <span>{slippage}%</span>
                 </div>

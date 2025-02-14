@@ -1,5 +1,5 @@
 import Empty from '../basic/Empty';
 
 export function NFTs() {
-  return <Empty />;
+  return <Empty>Coming soon</Empty>;
 }

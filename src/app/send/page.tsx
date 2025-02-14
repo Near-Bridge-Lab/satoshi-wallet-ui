@@ -4,6 +4,7 @@ import Navbar from '@/components/basic/Navbar';
 import { useTokenSelector } from '@/components/wallet/Tokens';
 import { MAIN_TOKEN, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
+import { transactionServices } from '@/services/tranction';
 import { useTokenStore } from '@/stores/token';
 import { formatNumber, formatToken, parseAmount } from '@/utils/format';
 import { rpcToWallet } from '@/utils/request';
@@ -178,7 +179,12 @@ export default function Send() {
                 size="sm"
                 color="primary"
                 className="py-0.5 px-2 min-w-min w-auto h-auto ml-2"
-                onClick={() => setValue('amount', balance || '0')}
+                onClick={() =>
+                  setValue(
+                    'amount',
+                    transactionServices.getMaxTransferAmount(getValues('token'), balance),
+                  )
+                }
               >
                 MAX
               </Button>
