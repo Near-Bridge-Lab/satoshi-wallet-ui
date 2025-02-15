@@ -1,8 +1,9 @@
-import { NEAR_RPC_NODES, NEAR_TOKEN_CONTRACT } from '@/config';
+import { BTC_TOKEN_CONTRACT, NEAR_RPC_NODES, NEAR_TOKEN_CONTRACT } from '@/config';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 import { formatAmount, formatFileUrl, parseAmount } from '@/utils/format';
 import { Action, Transaction } from '@near-wallet-selector/core';
+import Big from 'big.js';
 import { connect, keyStores, Near, providers } from 'near-api-js';
 import { FinalExecutionOutcome, QueryResponseKind } from 'near-api-js/lib/providers/provider';
 import { toast } from 'react-toastify';
@@ -139,6 +140,19 @@ export const nearServices = {
       console.error(error);
       return '0';
     }
+  },
+  getAvailableBalance(token: string, balance?: string) {
+    if (!balance || !token) return '0';
+    let availableBalance = balance;
+    // if token is NBTC, need to reserve 800satoshi as gas fee
+    if (token === BTC_TOKEN_CONTRACT) {
+      availableBalance = new Big(balance).minus('0.000008').toString();
+    }
+    // if token is NEAR, need to reserve 0.01 NEAR as gas fee
+    else if (token === NEAR_TOKEN_CONTRACT) {
+      availableBalance = new Big(balance).minus('0.01').toString();
+    }
+    return new Big(availableBalance).gt(0) ? availableBalance : '0';
   },
   async registerToken(token: string, recipient?: string) {
     const accountId = useWalletStore.getState().accountId;

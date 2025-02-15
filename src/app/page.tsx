@@ -3,7 +3,7 @@ import Loading from '@/components/basic/Loading';
 import ChainSelector from '@/components/wallet/Chains';
 import DepositPrompt from '@/components/wallet/DepositPrompt';
 import Tools from '@/components/wallet/Tools';
-import { MAIN_TOKEN } from '@/config';
+import { BTC_TOKEN_CONTRACT } from '@/config';
 import { useClient } from '@/hooks/useHooks';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
@@ -110,9 +110,10 @@ function Account() {
 function Balance({ className }: { className?: string }) {
   const { isClient } = useClient();
   const { balances, prices, tokenMeta } = useTokenStore();
-  const balance = useMemo(() => balances?.[MAIN_TOKEN], [balances]);
+  const balance = useMemo(() => balances?.[BTC_TOKEN_CONTRACT], [balances]);
   const balanceUSD = useMemo(
-    () => new Big(prices?.[tokenMeta[MAIN_TOKEN]?.symbol!] || 0).times(balance || 0).toNumber(),
+    () =>
+      new Big(prices?.[tokenMeta[BTC_TOKEN_CONTRACT]?.symbol!] || 0).times(balance || 0).toNumber(),
     [balance, prices, tokenMeta],
   );
 
@@ -120,7 +121,8 @@ function Balance({ className }: { className?: string }) {
     isClient && (
       <div className={`flex flex-col items-center justify-center gap-2 ${className ?? ''}`}>
         <div className="text-4xl font-bold">
-          {formatNumber(balance || 0)} <span>{formatToken(tokenMeta[MAIN_TOKEN]?.symbol)}</span>
+          {formatNumber(balance || 0)}{' '}
+          <span>{formatToken(tokenMeta[BTC_TOKEN_CONTRACT]?.symbol)}</span>
         </div>
         <div className="text-default-500">≈ ${formatPrice(balanceUSD)}</div>
       </div>

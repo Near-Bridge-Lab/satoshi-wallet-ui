@@ -1,7 +1,6 @@
 import { useWalletStore } from '@/stores/wallet';
 import { generateUrl } from '@/utils/common';
 import request from '@/utils/request';
-import Big from 'big.js';
 
 export interface RawTransaction {
   Id: number;
@@ -72,13 +71,5 @@ export const transactionServices = {
       }),
     );
     return result_data;
-  },
-  getMaxTransferAmount(token: string, balance?: string) {
-    if (!balance || !token) return '0';
-    // if token is NBTC, need to reserve 800聪手续费
-    if (token === process.env.NEXT_PUBLIC_BTC_TOKEN_CONTRACT) {
-      return new Big(balance).minus('0.000008').toString();
-    }
-    return balance;
   },
 };

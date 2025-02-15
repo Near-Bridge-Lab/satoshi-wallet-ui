@@ -1,5 +1,5 @@
 'use client';
-import { MAIN_TOKEN } from '@/config';
+import { BTC_TOKEN_CONTRACT } from '@/config';
 import { useDebouncedMemo, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { useTokenStore } from '@/stores/token';
@@ -60,8 +60,8 @@ export function Tokens({
   const sortedTokens = useMemo(() => {
     return filteredTokens?.sort((a, b) => {
       // if near is the first token
-      if (a === MAIN_TOKEN) return -1;
-      if (b === MAIN_TOKEN) return 1;
+      if (a === BTC_TOKEN_CONTRACT) return -1;
+      if (b === BTC_TOKEN_CONTRACT) return 1;
       return new Big(balancesUSD?.[b] || 0).minus(balancesUSD?.[a] || 0).toNumber();
     });
   }, [balancesUSD, filteredTokens]);

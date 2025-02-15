@@ -2,7 +2,7 @@
 import Loading from '@/components/basic/Loading';
 import Navbar from '@/components/basic/Navbar';
 import { useTokenSelector } from '@/components/wallet/Tokens';
-import { MAIN_TOKEN, NEAR_TOKEN_CONTRACT } from '@/config';
+import { BTC_TOKEN_CONTRACT, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
 import { nearSwapServices } from '@/services/swap';
 import { useTokenStore } from '@/stores/token';
@@ -51,14 +51,16 @@ export default function Swap() {
     setValue,
     handleSubmit,
     formState: { errors },
+    trigger,
   } = useForm<SwapForm>({
     defaultValues: {
-      tokenIn: query.get('tokenIn') || MAIN_TOKEN,
+      tokenIn: query.get('tokenIn') || BTC_TOKEN_CONTRACT,
       tokenOut: query.get('tokenOut') || NEAR_TOKEN_CONTRACT,
       amountIn: '',
       acceptPriceImpact: false,
       slippage: 0.1,
     },
+    mode: 'onTouched',
   });
 
   const amountIn = watch('amountIn') || '0';
@@ -251,6 +253,11 @@ export default function Swap() {
     [tokenMeta],
   );
 
+  const availableBalance = useMemo(
+    () => nearServices.getAvailableBalance(getValues('tokenIn'), balanceIn),
+    [balanceIn, getValues('tokenIn')],
+  );
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="s-container">
@@ -334,19 +341,31 @@ export default function Swap() {
                   }`}
                 >
                   <div className="text-base font-medium text-default-500 mb-2">Pay</div>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex justify-between mb-2">
                     <Controller
                       name="amountIn"
                       control={control}
+                      rules={{
+                        required: true,
+                        validate: (value) => {
+                          if (new Big(value || 0).gt(availableBalance)) {
+                            return new Big(availableBalance || 0).eq(0)
+                              ? 'Insufficient balance'
+                              : `Amount is greater than available balance: ${availableBalance}`;
+                          }
+                          return true;
+                        },
+                      }}
                       render={({ field }) => (
                         <Input
                           {...field}
                           classNames={{
                             base: 'flex-1',
                             input: 'text-2xl font-medium',
-                            inputWrapper: '!bg-transparent pl-0 shadow-none',
+                            inputWrapper: '!bg-transparent !border-none pl-0 shadow-none',
                           }}
                           size="lg"
+                          variant="bordered"
                           placeholder="0"
                           {...validator('amountIn')}
                           validationBehavior="aria"
@@ -380,15 +399,13 @@ export default function Swap() {
                         variant="light"
                         color="primary"
                         className="ml-2 p-0 min-w-0 h-auto"
-                        onClick={() =>
+                        onClick={() => {
                           setValue(
                             'amountIn',
-                            transactionServices.getMaxTransferAmount(
-                              getValues('tokenIn'),
-                              balanceIn,
-                            ),
-                          )
-                        }
+                            nearServices.getAvailableBalance(getValues('tokenIn'), balanceIn),
+                          );
+                          trigger('amountIn');
+                        }}
                       >
                         MAX
                       </Button>
@@ -465,7 +482,7 @@ export default function Swap() {
                   queryLoading ||
                   swapLoading ||
                   !swapResult ||
-                  isInsufficientBalance ||
+                  Object.keys(errors).length > 0 ||
                   (priceImpactFlag === 'danger' && !watch('acceptPriceImpact'))
                 }
                 onClick={handleSubmit(handleSwap)}
