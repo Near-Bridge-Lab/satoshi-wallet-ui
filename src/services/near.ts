@@ -148,9 +148,9 @@ export const nearServices = {
     if (token === BTC_TOKEN_CONTRACT) {
       availableBalance = new Big(balance).minus('0.000008').toString();
     }
-    // if token is NEAR, need to reserve 0.01 NEAR as gas fee
+    // if token is NEAR, need to reserve 0.5 NEAR as gas fee
     else if (token === NEAR_TOKEN_CONTRACT) {
-      availableBalance = new Big(balance).minus('0.01').toString();
+      availableBalance = new Big(balance).minus('0.5').toString();
     }
     return new Big(availableBalance).gt(0) ? availableBalance : '0';
   },
