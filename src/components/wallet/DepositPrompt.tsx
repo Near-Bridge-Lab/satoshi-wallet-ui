@@ -7,7 +7,7 @@ import { useWalletStore } from '@/stores/wallet';
 import { rpcToWallet } from '@/utils/request';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Alert, Button } from '@nextui-org/react';
-import { getConfig } from 'btc-wallet';
+import { getWalletConfig } from 'btc-wallet';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -39,7 +39,7 @@ export default function DepositPrompt() {
   useRequest(
     async () => {
       if (!accountId) return;
-      const config = await getConfig(RUNTIME_NETWORK);
+      const config = await getWalletConfig(RUNTIME_NETWORK);
       const res = await nearServices.query({
         contractId: config.accountContractId,
         method: 'get_account',
