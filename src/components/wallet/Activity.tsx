@@ -10,6 +10,21 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 import Big from 'big.js';
 import Tooltip from '../basic/Tooltip';
 
+const StatusMap = {
+  success: {
+    label: 'Success',
+    color: 'success',
+  },
+  failed: {
+    label: 'Failed',
+    color: 'danger',
+  },
+  pending: {
+    label: 'Pending',
+    color: 'warning',
+  },
+};
+
 export default function Activity() {
   const [tab, setTab] = useState<'transaction' | 'bridge'>('transaction');
   return (
@@ -73,20 +88,15 @@ BridgeStatusWithdrawLessFee = 102
         classNames: { base: 'h-5', content: 'text-xs' },
       } as ChipProps;
 
-      const status: Record<number, { label: string; color: ChipProps['color'] }> = {
-        0: { label: 'Pending', color: 'warning' },
-        1: { label: 'Success', color: 'success' },
-        2: { label: 'In Block', color: 'warning' },
-        3: { label: 'Confirmed', color: 'success' },
-        4: { label: 'Completed', color: 'success' },
-        5: { label: 'NearCA Signed', color: 'success' },
-        6: { label: 'Withdraw Sent', color: 'success' },
-        7: { label: 'Verify Sent', color: 'success' },
-        102: { label: 'Withdraw Less Fee', color: 'danger' },
-      };
+      const status = data.Status === 4 ? 'success' : data.Status >= 50 ? 'failed' : 'pending';
+
       return (
-        <Chip color={status[data.Status]?.color} {...props} className={className}>
-          {status[data.Status]?.label}
+        <Chip
+          color={StatusMap[status].color as ChipProps['color']}
+          {...props}
+          className={className}
+        >
+          {StatusMap[status].label}
         </Chip>
       );
     },
@@ -224,30 +234,14 @@ export function TransactionHistory({ address }: { address?: string }) {
       size: 'sm',
       classNames: { base: 'h-5', content: 'text-xs' },
     } as ChipProps;
-    switch (data.Status) {
-      case 98:
-      case 99:
-      case 101:
-      case 102:
-        return (
-          <Chip color="danger" {...props}>
-            Failed
-          </Chip>
-        );
-      case 3:
-        return null;
-      // return (
-      //   <Chip color="success" {...props}>
-      //     Success
-      //   </Chip>
-      // );
-      default:
-        return (
-          <Chip color="warning" {...props}>
-            Pending
-          </Chip>
-        );
-    }
+
+    const status = data.Status === 3 ? 'success' : data.Status >= 100 ? 'failed' : 'pending';
+
+    return (
+      <Chip color={StatusMap[status].color as ChipProps['color']} {...props}>
+        {StatusMap[status].label}
+      </Chip>
+    );
   }, []);
 
   return (
