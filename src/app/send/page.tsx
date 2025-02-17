@@ -59,7 +59,6 @@ export default function Send() {
   const validator = useCallback(
     (key: keyof typeof errors) => {
       const error = get(errors, key);
-      console.log(error);
       return error ? { isInvalid: true, errorMessage: error?.message?.toString() } : {};
     },
     [errors],
