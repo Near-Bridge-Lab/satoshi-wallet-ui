@@ -141,9 +141,12 @@ export default function Bridge() {
         const transaction = await getWithdrawTransaction({
           amount: rawAmount,
           env: RUNTIME_NETWORK,
+          csna: accountId,
+          btcAddress: btcAccountId,
         });
         await rpcToWallet('signAndSendTransaction', transaction);
         toast.success('Bridge success');
+        refreshBalance(BTC_TOKEN_CONTRACT);
       }
     } catch (error) {
       console.error(error);

@@ -23,7 +23,7 @@ body {
 }
 
 .toast-container {
-  --toastify-color-success: var(--primary);
+  --toastify-color-success: #00e695;
   --toastify-color-progress-success: var(--toastify-color-success);
   --toastify-icon-color-success: var(--toastify-color-success);
 }
