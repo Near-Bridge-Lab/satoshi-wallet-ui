@@ -6,21 +6,16 @@ import { BTC_TOKEN_CONTRACT, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
 import { nearSwapServices } from '@/services/swap';
 import { useTokenStore } from '@/stores/token';
-import { formatAmount, formatNumber, formatPrice, formatToken, parseAmount } from '@/utils/format';
-import { Icon } from '@iconify/react';
 import {
-  Button,
-  Image,
-  Input,
-  Checkbox,
-  Card,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  DropdownSection,
-  Tooltip,
-} from '@nextui-org/react';
+  formatAmount,
+  formatNumber,
+  formatPrice,
+  formatToken,
+  formatValidNumber,
+  parseAmount,
+} from '@/utils/format';
+import { Icon } from '@iconify/react';
+import { Button, Image, Input, Checkbox } from '@nextui-org/react';
 import { get } from 'lodash-es';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,6 +24,7 @@ import { toast } from 'react-toastify';
 import Big from 'big.js';
 import { useClient, useRequest } from '@/hooks/useHooks';
 import { transactionServices } from '@/services/tranction';
+import Slippage from '@/components/wallet/Slippage';
 
 interface SwapForm {
   tokenIn: string;
@@ -42,6 +38,8 @@ export default function Swap() {
   const { isClient } = useClient();
   const query = useSearchParams();
   const { displayableTokens, tokenMeta, balances, refreshBalance, prices } = useTokenStore();
+
+  const defaultSlippage = 0.1;
 
   const {
     watch,
@@ -58,7 +56,7 @@ export default function Swap() {
       tokenOut: query.get('tokenOut') || NEAR_TOKEN_CONTRACT,
       amountIn: '',
       acceptPriceImpact: false,
-      slippage: 0.1,
+      slippage: defaultSlippage,
     },
     mode: 'onTouched',
   });
@@ -67,9 +65,7 @@ export default function Swap() {
   const tokenIn = watch('tokenIn');
   const tokenOut = watch('tokenOut');
   // 添加滑点相关状态
-  const [slippage, setSlippage] = useState(0.1);
-  const [isSlippageOpen, setIsSlippageOpen] = useState(false);
-  const [isCustomSlippage, setIsCustomSlippage] = useState(false);
+  const [slippage, setSlippage] = useState(defaultSlippage);
 
   const [priceReverse, setPriceReverse] = useState(false);
 
@@ -167,15 +163,6 @@ export default function Swap() {
 
   const balanceOut = useMemo(() => balances?.[tokenOut], [balances, tokenOut]);
 
-  const handleSlippageAction = (key: string) => {
-    if (key === 'custom') return;
-    const value = Number(key);
-    if (!isNaN(value)) {
-      setSlippage(value);
-      setIsCustomSlippage(false);
-    }
-  };
-
   const tokenInPrice = useMemo(() => {
     const symbol = tokenMeta[tokenIn]?.symbol;
     if (!symbol || !prices[symbol]) return '0';
@@ -235,7 +222,12 @@ export default function Swap() {
   const TokenSelector = useCallback(
     ({ token, onSelect }: { token: string; onSelect: (token: string) => void }) => {
       return (
-        <Button variant="flat" className="flex items-center gap-2 " onClick={() => onSelect(token)}>
+        <Button
+          variant="flat"
+          className="flex items-center gap-2"
+          radius="full"
+          onClick={() => onSelect(token)}
+        >
           <Image
             src={tokenMeta[token]?.icon}
             width={24}
@@ -277,53 +269,7 @@ export default function Swap() {
                   className={`text-base ${queryLoading ? 'animate-spin' : ''}`}
                 />
               </Button>
-              <Dropdown isOpen={isSlippageOpen} onOpenChange={setIsSlippageOpen}>
-                <DropdownTrigger>
-                  <Button isIconOnly variant="flat" size="sm">
-                    <Tooltip content={`Slippage: ${slippage}%`}>
-                      <Icon icon="iconamoon:options-light" className="text-base" />
-                    </Tooltip>
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Slippage options"
-                  className="min-w-[160px]"
-                  selectedKeys={
-                    isCustomSlippage ? new Set(['custom']) : new Set([slippage.toString()])
-                  }
-                  selectionMode="single"
-                  onAction={(key) => handleSlippageAction(key.toString())}
-                >
-                  <DropdownSection title="Set max slippage">
-                    <DropdownItem key="0.1">0.1%</DropdownItem>
-                    <DropdownItem key="0.5">0.5%</DropdownItem>
-                    <DropdownItem key="1">1%</DropdownItem>
-                    <DropdownItem
-                      key="custom"
-                      className="data-[selected=true]:bg-primary-50"
-                      isReadOnly
-                      hideSelectedIcon
-                    >
-                      <Input
-                        type="number"
-                        size="sm"
-                        placeholder="Custom"
-                        value={slippage.toString()}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          if (!isNaN(value)) {
-                            setSlippage(value);
-                            setIsCustomSlippage(true);
-                          }
-                        }}
-                        className="w-full"
-                        endContent={<div className="text-small">%</div>}
-                        validationBehavior="aria"
-                      />
-                    </DropdownItem>
-                  </DropdownSection>
-                </DropdownMenu>
-              </Dropdown>
+              <Slippage value={slippage} onChange={setSlippage} />
             </div>
           }
         >
@@ -371,14 +317,7 @@ export default function Swap() {
                           validationBehavior="aria"
                           autoComplete="off"
                           onChange={(e) => {
-                            const value = e.target.value.replace(/[^\d.]/g, '');
-                            const dots = value.match(/\./g)?.length || 0;
-                            if (dots > 1) return;
-                            if (value.startsWith('.')) {
-                              field.onChange('0' + value);
-                            } else {
-                              field.onChange(value);
-                            }
+                            field.onChange(formatValidNumber(e.target.value));
                           }}
                           onFocus={() => setIsFocus(true)}
                           onBlur={() => setIsFocus(false)}
