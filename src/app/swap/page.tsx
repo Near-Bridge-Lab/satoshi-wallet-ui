@@ -144,14 +144,13 @@ export default function Swap() {
   const balanceIn = useMemo(() => balances?.[tokenIn], [balances, tokenIn]);
 
   const isInsufficientBalance = useMemo(() => {
-    const amountIn = getValues('amountIn');
     if (!amountIn || !balanceIn) return false;
     try {
       return new Big(amountIn).gt(balanceIn);
     } catch {
       return false;
     }
-  }, [balanceIn, getValues('amountIn')]);
+  }, [balanceIn, amountIn]);
 
   const validator = useCallback(
     (key: keyof typeof errors) => {
@@ -246,8 +245,8 @@ export default function Swap() {
   );
 
   const availableBalance = useMemo(
-    () => nearServices.getAvailableBalance(getValues('tokenIn'), balanceIn),
-    [balanceIn, getValues('tokenIn')],
+    () => nearServices.getAvailableBalance(tokenIn, balanceIn),
+    [balanceIn, tokenIn],
   );
 
   return (
@@ -317,17 +316,16 @@ export default function Swap() {
                           validationBehavior="aria"
                           autoComplete="off"
                           onChange={(e) => {
-                            field.onChange(formatValidNumber(e.target.value));
+                            field.onChange(
+                              formatValidNumber(e.target.value, tokenMeta[tokenIn]?.decimals),
+                            );
                           }}
                           onFocus={() => setIsFocus(true)}
                           onBlur={() => setIsFocus(false)}
                         />
                       )}
                     />
-                    <TokenSelector
-                      token={getValues('tokenIn')}
-                      onSelect={() => handleSelectToken('in')}
-                    />
+                    <TokenSelector token={tokenIn} onSelect={() => handleSelectToken('in')} />
                   </div>
                   <div className="flex justify-between gap-2">
                     <div className="text-default-500 text-sm">${formatPrice(tokenInUSDValue)}</div>
@@ -341,7 +339,7 @@ export default function Swap() {
                         onClick={() => {
                           setValue(
                             'amountIn',
-                            nearServices.getAvailableBalance(getValues('tokenIn'), balanceIn),
+                            nearServices.getAvailableBalance(tokenIn, balanceIn),
                           );
                           trigger('amountIn');
                         }}
@@ -375,10 +373,7 @@ export default function Swap() {
                     <div className="text-2xl font-medium">
                       {formatNumber(swapResult?.amountOut)}
                     </div>
-                    <TokenSelector
-                      token={getValues('tokenOut')}
-                      onSelect={() => handleSelectToken('out')}
-                    />
+                    <TokenSelector token={tokenOut} onSelect={() => handleSelectToken('out')} />
                   </div>
                   <div className="flex justify-between gap-2">
                     <div className="text-default-500 text-sm">${formatPrice(tokenOutUSDValue)}</div>

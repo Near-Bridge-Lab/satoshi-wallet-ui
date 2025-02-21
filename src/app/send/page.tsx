@@ -6,7 +6,7 @@ import { BTC_TOKEN_CONTRACT, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
 import { transactionServices } from '@/services/tranction';
 import { useTokenStore } from '@/stores/token';
-import { formatNumber, formatToken, parseAmount } from '@/utils/format';
+import { formatNumber, formatToken, formatValidNumber, parseAmount } from '@/utils/format';
 import { rpcToWallet } from '@/utils/request';
 import { Icon } from '@iconify/react';
 import { Button, Image, Input, InputProps } from '@nextui-org/react';
@@ -195,6 +195,11 @@ export default function Send() {
                       {formatToken(tokenMeta[getValues('token')]?.symbol)}
                     </span>
                   }
+                  onChange={(e) => {
+                    field.onChange(
+                      formatValidNumber(e.target.value, tokenMeta[getValues('token')]?.decimals),
+                    );
+                  }}
                 />
               )}
             ></Controller>

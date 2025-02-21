@@ -1,7 +1,7 @@
 import Big from 'big.js';
 Big.DP = 24;
 
-export function formatValidNumber(val: string | number | undefined) {
+export function formatValidNumber(val: string | number | undefined, maxDecimals = 8) {
   if (!val) return;
   let value = val?.toString().replace(/[^\d.]/g, '');
   const dots = value?.match(/\./g)?.length || 0;
@@ -9,6 +9,12 @@ export function formatValidNumber(val: string | number | undefined) {
   value = value?.replace(/^0+(\d)/, '$1');
   if (value === '.') {
     value = '0.';
+  }
+  if (value?.includes('.')) {
+    const [integer, decimal] = value.split('.');
+    if (decimal.length > maxDecimals) {
+      return `${integer}.${decimal.slice(0, maxDecimals)}`;
+    }
   }
   return value;
 }

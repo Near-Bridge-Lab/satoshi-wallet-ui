@@ -3,7 +3,7 @@ import Loading from '@/components/basic/Loading';
 import Navbar from '@/components/basic/Navbar';
 import { useTokenSelector } from '@/components/wallet/Tokens';
 import { BTC_TOKEN_CONTRACT, NEAR_TOKEN_CONTRACT, RUNTIME_NETWORK } from '@/config';
-import { useClient, useRequest } from '@/hooks/useHooks';
+import { useClient, useDebouncedEffect, useRequest } from '@/hooks/useHooks';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
 import {
@@ -26,6 +26,7 @@ import { toast } from 'react-toastify';
 import { getBtcBalance, getWithdrawTransaction } from 'btc-wallet';
 import { btcBridgeServices } from '@/services/bridge';
 import { rpcToWallet } from '@/utils/request';
+import { nearServices } from '@/services/near';
 
 interface BridgeForm {
   fromChain: string;
@@ -42,7 +43,8 @@ export default function Bridge() {
   const {
     watch,
     control,
-    register,
+    setError,
+    clearErrors,
     getValues,
     setValue,
     handleSubmit,
@@ -74,12 +76,24 @@ export default function Bridge() {
     },
   );
 
+  useDebouncedEffect(
+    () => {
+      estimatedLoading
+        ? clearErrors('amountIn')
+        : estimated?.error && setError('amountIn', { message: estimated.error });
+    },
+    [estimated?.error, estimatedLoading],
+    { wait: 500 },
+  );
+
   const chainBalance = useCallback(
     ({ chain }: { chain: string }) => {
       if (chain === 'btc') {
-        return btcBalanceRes?.balance;
+        return btcBalanceRes || {};
       }
-      return balances?.[BTC_TOKEN_CONTRACT];
+      const balance = balances?.[BTC_TOKEN_CONTRACT] || 0;
+
+      return { balance, availableBalance: balance };
     },
     [btcBalanceRes, balances],
   );
@@ -103,15 +117,15 @@ export default function Bridge() {
   );
 
   const isInsufficientBalance = useMemo(() => {
-    const amountIn = getValues('amountIn');
-    const balance = chainBalance({ chain: fromChain }) || 0;
-    if (!amountIn || !balance) return false;
+    if (!Number(amountIn)) return false;
+    const { availableBalance } = chainBalance({ chain: fromChain }) || 0;
+    if (!Number(availableBalance)) return true;
     try {
-      return new Big(amountIn).gt(balance);
+      return new Big(amountIn).gt(availableBalance || 0);
     } catch {
       return false;
     }
-  }, [chainBalance, getValues('amountIn')]);
+  }, [chainBalance, amountIn, fromChain]);
 
   const handleSwapDirection = useCallback(() => {
     const currentFromChain = getValues('fromChain');
@@ -123,6 +137,22 @@ export default function Bridge() {
   }, [setValue, getValues]);
 
   const [bridgeLoading, setBridgeLoading] = useState(false);
+
+  const canBridge = useMemo(() => {
+    return (
+      !!Number(amountIn) &&
+      !estimatedLoading &&
+      !bridgeLoading &&
+      Object.keys(errors).length === 0 &&
+      estimated?.canBridge
+    );
+  }, [estimatedLoading, bridgeLoading, errors, amountIn]);
+
+  function setMaxAmountIn() {
+    const { availableBalance } = chainBalance({ chain: fromChain });
+    setValue('amountIn', availableBalance?.toString() || '0');
+    trigger('amountIn');
+  }
 
   async function handleBridge(data: BridgeForm) {
     try {
@@ -201,15 +231,7 @@ export default function Bridge() {
                   <Controller
                     name="amountIn"
                     control={control}
-                    rules={{
-                      required: true,
-                      validate: (value) => {
-                        if (new Big(value || 0).gt(chainBalance({ chain: fromChain }) || 0)) {
-                          return 'Insufficient balance';
-                        }
-                        return true;
-                      },
-                    }}
+                    rules={{ required: true }}
                     render={({ field }) => (
                       <Input
                         {...field}
@@ -240,7 +262,7 @@ export default function Bridge() {
                   </div>
                   <div className="text-default-500 text-sm">
                     Balance:{' '}
-                    {formatNumber(chainBalance({ chain: fromChain }) || 0, {
+                    {formatNumber(chainBalance({ chain: fromChain })?.balance || 0, {
                       displayDecimals: 8,
                     })}
                     <Button
@@ -248,10 +270,7 @@ export default function Bridge() {
                       variant="light"
                       color="primary"
                       className="ml-2 p-0 min-w-0 h-auto"
-                      onClick={() => {
-                        setValue('amountIn', chainBalance({ chain: fromChain })?.toString() || '0');
-                        trigger('amountIn');
-                      }}
+                      onClick={setMaxAmountIn}
                     >
                       MAX
                     </Button>
@@ -296,7 +315,7 @@ export default function Bridge() {
                   </div>
                   <div className="text-default-500 text-sm">
                     Balance:{' '}
-                    {formatNumber(chainBalance({ chain: toChain }) || 0, {
+                    {formatNumber(chainBalance({ chain: toChain })?.balance || 0, {
                       displayDecimals: 8,
                     })}
                   </div>
@@ -326,7 +345,7 @@ export default function Bridge() {
               size="lg"
               className="font-bold"
               fullWidth
-              isDisabled={estimatedLoading || bridgeLoading || Object.keys(errors).length > 0}
+              isDisabled={!canBridge}
               onClick={handleSubmit(handleBridge)}
             >
               {estimatedLoading || bridgeLoading ? (
@@ -353,16 +372,11 @@ function ChainSelector({ chain, onSelect }: { chain: string; onSelect?: (chain: 
     <Button
       variant="light"
       size="sm"
-      className="flex items-center gap-1"
+      className="flex items-center gap-1 cursor-default !bg-transparent"
       onClick={() => onSelect?.(chain)}
+      disableAnimation
     >
-      <Image
-        src={chainInfo?.icon}
-        width={16}
-        height={16}
-        alt={chainInfo?.name}
-        className="rounded-full"
-      />
+      <Image src={chainInfo?.icon} width={16} height={16} alt={chainInfo?.name} />
       <div className="flex items-center">{chainInfo?.name}</div>
     </Button>
   );
@@ -381,9 +395,10 @@ function TokenSelector({
   return (
     <Button
       variant="flat"
-      className="flex items-center gap-2"
+      className="flex items-center gap-2 cursor-default "
       radius="full"
       onClick={() => onSelect?.(token)}
+      disableAnimation
     >
       <Image
         src={

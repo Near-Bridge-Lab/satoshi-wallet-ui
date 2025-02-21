@@ -19,7 +19,14 @@ export const btcBridgeServices = {
       },
     ];
   },
-  async estimate({ chain, amount }: { chain: string; amount: string }) {
+  async estimate({ chain, amount }: { chain: string; amount: string }): Promise<{
+    time: string;
+    gasFee: string;
+    protocolFee: string;
+    receiveAmount: string;
+    canBridge: boolean;
+    error?: string;
+  }> {
     const { originalAccountId: btcAccount, accountId: nearAccount } = useWalletStore.getState();
     const time = '~20 Min';
     if (!btcAccount || !nearAccount || new Big(amount || 0).eq(0)) {
@@ -28,6 +35,7 @@ export const btcBridgeServices = {
         gasFee: '0',
         protocolFee: '0',
         receiveAmount: '0',
+        canBridge: false,
       };
     }
     const btcDecimals = 8;
@@ -42,6 +50,7 @@ export const btcBridgeServices = {
         gasFee,
         protocolFee,
         receiveAmount: amount,
+        canBridge: true,
       };
     } else {
       const res = await calculateWithdraw({
@@ -62,6 +71,8 @@ export const btcBridgeServices = {
         gasFee,
         protocolFee,
         receiveAmount,
+        canBridge: !res.errorMsg,
+        error: res.errorMsg,
       };
     }
   },
