@@ -161,6 +161,7 @@ export default function Bridge() {
       if (data.fromChain === 'btc') {
         await rpcToWallet('executeBTCDepositAndAction' as any, {
           amount: rawAmount,
+          newAccountMinDepositAmount: false,
           pollResult: false,
           env: RUNTIME_NETWORK,
         });
@@ -376,8 +377,14 @@ function ChainSelector({ chain, onSelect }: { chain: string; onSelect?: (chain: 
       onClick={() => onSelect?.(chain)}
       disableAnimation
     >
-      <Image src={chainInfo?.icon} width={16} height={16} alt={chainInfo?.name} />
-      <div className="flex items-center">{chainInfo?.name}</div>
+      <Image
+        src={chainInfo?.icon}
+        width={20}
+        height={20}
+        alt={chainInfo?.name}
+        classNames={{ img: 'rounded-md border-1 border-default-300' }}
+      />
+      <div className="flex items-center text-sm">{chainInfo?.name}</div>
     </Button>
   );
 }

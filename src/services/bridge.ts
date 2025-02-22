@@ -10,7 +10,7 @@ export const btcBridgeServices = {
       {
         chain: 'btc',
         name: 'BTC',
-        icon: formatFileUrl(`/assets/chain/btc.svg`),
+        icon: '/satoshi.svg',
       },
       {
         chain: 'near',
@@ -41,7 +41,10 @@ export const btcBridgeServices = {
     const btcDecimals = 8;
     const rawAmount = parseAmount(amount, btcDecimals);
     if (chain === 'btc') {
-      const res = await getDepositAmount(rawAmount, { csna: nearAccount });
+      const res = await getDepositAmount(rawAmount, {
+        csna: nearAccount,
+        newAccountMinDepositAmount: false,
+      });
       const protocolFee = formatAmount(res.protocolFee, btcDecimals);
       const rawGasFee = await calculateGasFee(btcAccount, Number(rawAmount));
       const gasFee = formatAmount(rawGasFee, btcDecimals);
