@@ -18,11 +18,11 @@ import {
   setupWalletSelectorModal,
 } from 'btc-wallet';
 
-// import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { formatAmount, parseAmount } from '@/utils/format';
 import { NEAR_RPC_NODES, RUNTIME_NETWORK } from '@/config';
+import '@near-wallet-selector/modal-ui/styles.css';
 
 declare global {
   interface Window {
@@ -97,7 +97,7 @@ function WalletPage() {
     setWalletSelector(selector);
     window.nearWalletSelector = selector;
 
-    const modal = setupWalletSelectorModal(selector, {
+    const modal = setupWalletSelectorModal(selector as any, {
       contractId: '',
       theme: 'dark',
     });
