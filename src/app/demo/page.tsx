@@ -2,7 +2,6 @@
 import { useDebouncedEffect, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
 import { setupWalletSelector, Wallet, WalletSelector } from '@near-wallet-selector/core';
-import { type WalletSelectorModal, setupModal } from '@near-wallet-selector/modal-ui';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -15,9 +14,10 @@ import {
   BtcWalletSelectorContextProvider,
   getWithdrawTransaction,
   useBtcWalletSelector,
+  type WalletSelectorModal,
+  setupWalletSelectorModal,
 } from 'btc-wallet';
 
-import '@near-wallet-selector/modal-ui/styles.css';
 // import { setupWalletButton, removeWalletButton } from '@/hooks/initWalletButton';
 import Loading from '@/components/basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -97,7 +97,7 @@ function WalletPage() {
     setWalletSelector(selector);
     window.nearWalletSelector = selector;
 
-    const modal = setupModal(selector, {
+    const modal = setupWalletSelectorModal(selector, {
       contractId: '',
       theme: 'dark',
     });
