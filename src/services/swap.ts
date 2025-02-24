@@ -103,12 +103,15 @@ export const nearSwapServices = {
       routerCount,
     });
     // get current market price (tokenOut/tokenIn)
-    const oldPrice = new Big(minimumAmountIn).div(oldRes.amountOut);
+    const oldPrice = new Big(minimumAmountIn).div(
+      new Big(oldRes.amountOut).eq(0) ? 1 : oldRes.amountOut,
+    );
     // Price Impact = (newPrice - oldPrice) / newPrice * 100
     const impact = newPrice.minus(oldPrice).div(newPrice).times(100).round(2).abs().toNumber();
     console.log(`impact:${impact}=(${newPrice}-${oldPrice})/${newPrice}*100`);
     return impact || 0;
   },
+
   async generateTransaction({
     tokenIn,
     tokenOut,

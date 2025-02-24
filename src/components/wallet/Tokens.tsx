@@ -12,6 +12,29 @@ import Loading from '../basic/Loading';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useMessageBoxContext } from '@/providers/MessageBoxProvider';
 
+export function useTokenSelector() {
+  const { openModal } = useMessageBoxContext();
+  async function open({ value }: { value?: string }) {
+    return new Promise<string | undefined>((resolve) => {
+      openModal({
+        header: 'Select Token',
+        body: ({ close }) => (
+          <TokenSelector
+            value={value}
+            onChange={(v) => {
+              close?.();
+              resolve?.(v);
+            }}
+          />
+        ),
+        placement: 'bottom',
+        size: 'full',
+      });
+    });
+  }
+  return { open };
+}
+
 export function Tokens({
   mode,
   search,
@@ -189,29 +212,6 @@ export function ImportToken({ onSuccess }: { onSuccess?: () => void }) {
   );
 }
 
-export function useTokenSelector() {
-  const { openModal } = useMessageBoxContext();
-  async function open({ value }: { value?: string }) {
-    return new Promise<string | undefined>((resolve) => {
-      openModal({
-        header: 'Select Token',
-        body: ({ close }) => (
-          <TokenSelector
-            value={value}
-            onChange={(v) => {
-              close?.();
-              resolve?.(v);
-            }}
-          />
-        ),
-        placement: 'bottom',
-        size: 'full',
-      });
-    });
-  }
-  return { open };
-}
-
 export function TokenSelector({
   value,
   onChange,
@@ -233,5 +233,39 @@ export function TokenSelector({
       </div>
       <Tokens mode="select" search={search} onClick={(v) => onChange(v)} />
     </div>
+  );
+}
+
+export function TokenSelectorButton({
+  token,
+  onSelect,
+  className,
+}: {
+  token: string;
+  onSelect: (token: string) => void;
+  className?: string;
+}) {
+  const { tokenMeta } = useTokenStore();
+  const { open } = useTokenSelector();
+  async function handleSelect() {
+    const v = await open({ value: token });
+    v && onSelect(v);
+  }
+  return (
+    <Button
+      variant="flat"
+      className={`flex items-center gap-2 ${className}`}
+      radius="full"
+      onClick={handleSelect}
+    >
+      <Image
+        src={tokenMeta[token]?.icon}
+        width={24}
+        height={24}
+        alt={tokenMeta[token]?.symbol || 'token'}
+      />
+      <span>{formatToken(tokenMeta[token]?.symbol)}</span>
+      <Icon icon="solar:alt-arrow-down-bold" className="text-xs text-default-500 flex-shrink-0" />
+    </Button>
   );
 }

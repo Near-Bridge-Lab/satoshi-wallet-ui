@@ -143,7 +143,7 @@ export default function Send() {
           <div>
             <div className="card cursor-pointer" onClick={handleSelectToken}>
               <div className="flex items-center gap-3">
-                <Image src={tokenMeta[getValues('token')]?.icon} width={30} height={30} />
+                <Image src={tokenMeta[getValues('token')]?.icon} width={24} height={24} />
                 <span className="text-base">
                   {formatToken(tokenMeta[getValues('token')]?.symbol)}
                 </span>

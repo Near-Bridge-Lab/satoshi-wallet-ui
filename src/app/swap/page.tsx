@@ -1,7 +1,7 @@
 'use client';
 import Loading from '@/components/basic/Loading';
 import Navbar from '@/components/basic/Navbar';
-import { useTokenSelector } from '@/components/wallet/Tokens';
+import { TokenSelector, TokenSelectorButton, useTokenSelector } from '@/components/wallet/Tokens';
 import { BTC_TOKEN_CONTRACT, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
 import { nearSwapServices } from '@/services/swap';
@@ -194,11 +194,7 @@ export default function Swap() {
     setValue('amountIn', '');
   }, [setValue, getValues]);
 
-  const { open } = useTokenSelector();
-
-  async function handleSelectToken(type: 'in' | 'out') {
-    const token = await open({ value: type === 'in' ? tokenIn : tokenOut });
-    if (!token) return;
+  async function handleSelectToken(type: 'in' | 'out', token: string) {
     if (type === 'in') {
       if (token === tokenIn) return;
       if (token === tokenOut) {
@@ -217,32 +213,6 @@ export default function Swap() {
       setValue('amountIn', '');
     }
   }
-
-  const TokenSelector = useCallback(
-    ({ token, onSelect }: { token: string; onSelect: (token: string) => void }) => {
-      return (
-        <Button
-          variant="flat"
-          className="flex items-center gap-2"
-          radius="full"
-          onClick={() => onSelect(token)}
-        >
-          <Image
-            src={tokenMeta[token]?.icon}
-            width={24}
-            height={24}
-            alt={tokenMeta[token]?.symbol || 'token'}
-          />
-          <span>{formatToken(tokenMeta[token]?.symbol)}</span>
-          <Icon
-            icon="solar:alt-arrow-down-bold"
-            className="text-xs text-default-500 flex-shrink-0"
-          />
-        </Button>
-      );
-    },
-    [tokenMeta],
-  );
 
   const availableBalance = useMemo(
     () => nearServices.getAvailableBalance(tokenIn, balanceIn),
@@ -325,7 +295,10 @@ export default function Swap() {
                         />
                       )}
                     />
-                    <TokenSelector token={tokenIn} onSelect={() => handleSelectToken('in')} />
+                    <TokenSelectorButton
+                      token={tokenIn}
+                      onSelect={(token) => handleSelectToken('in', token)}
+                    />
                   </div>
                   <div className="flex justify-between gap-2">
                     <div className="text-default-500 text-sm">${formatPrice(tokenInUSDValue)}</div>
@@ -373,7 +346,10 @@ export default function Swap() {
                     <div className="text-2xl font-medium">
                       {formatNumber(swapResult?.amountOut)}
                     </div>
-                    <TokenSelector token={tokenOut} onSelect={() => handleSelectToken('out')} />
+                    <TokenSelectorButton
+                      token={tokenOut}
+                      onSelect={(token) => handleSelectToken('out', token)}
+                    />
                   </div>
                   <div className="flex justify-between gap-2">
                     <div className="text-default-500 text-sm">${formatPrice(tokenOutUSDValue)}</div>
