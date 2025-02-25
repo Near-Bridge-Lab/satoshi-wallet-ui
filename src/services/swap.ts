@@ -90,7 +90,7 @@ export const nearSwapServices = {
     const { tokenMeta, prices } = useTokenStore.getState();
     const tokenInPrice = prices[tokenMeta[tokenIn]?.symbol!] || 0;
     // calculate new price (tokenIn/tokenOut)
-    const newPrice = new Big(amountIn).div(newRes.amountOut);
+    const newPrice = new Big(amountIn).div(new Big(newRes.amountOut).eq(0) ? 1 : newRes.amountOut);
     const minimumAmountIn = new Big(1)
       .div(new Big(tokenInPrice).eq(0) ? 1 : tokenInPrice)
       .toString();
