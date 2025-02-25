@@ -436,9 +436,9 @@ function BTCSwapNEAR() {
         tokenOut,
         amountIn,
       });
-      const res = await executeBTCDepositAndAction({
+      await executeBTCDepositAndAction({
         action: {
-          receiver_id: tokenIn,
+          receiver_id: process.env.NEXT_PUBLIC_NEAR_SWAP_CONTRACT,
           amount: parseAmount(amountIn, 8),
           msg: action.args.msg,
         },
