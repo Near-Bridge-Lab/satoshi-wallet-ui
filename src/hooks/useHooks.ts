@@ -13,7 +13,6 @@ import {
 import { debounce, type DebounceSettings } from 'lodash-es';
 import { safeJSONParse, safeJSONStringify, storageStore } from '../utils/common';
 import dayjs from '@/utils/dayjs';
-import { useRouter } from 'next/router';
 
 export function useClient() {
   const [isClient, setIsClient] = useState(false);
@@ -379,34 +378,6 @@ export function useCopyClipboard() {
   );
 
   return { copied, copy };
-}
-
-export function useRouterQuery() {
-  const router = useRouter();
-  const query = useMemo(() => router.query, [router.query]);
-
-  const replaceQuery = useCallback(
-    (q: Record<string, any>, options?: { shallow?: boolean }) => {
-      const newQuery = { ...router.query };
-      Object.entries(q).forEach(([key, value]) => {
-        if (value === undefined || value === null) {
-          delete newQuery[key];
-        } else {
-          newQuery[key] = value;
-        }
-      });
-      router.replace(
-        {
-          query: newQuery,
-        },
-        undefined,
-        { shallow: options?.shallow ?? true },
-      );
-    },
-    [router],
-  );
-
-  return { query, replaceQuery };
 }
 
 export function useStorageState<T>(
