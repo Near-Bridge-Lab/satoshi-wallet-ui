@@ -51,7 +51,7 @@ export default function Tools({
   }
 
   function handleBridge() {
-    window.open(process.env.NEXT_PUBLIC_BRIDGE_URL, '_blank');
+    router.push('/bridge');
   }
 
   return (

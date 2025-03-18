@@ -6,8 +6,8 @@ declare namespace NodeJS {
     NEXT_PUBLIC_AWS_S3_URL: string;
     NEXT_PUBLIC_URL: string;
     NEXT_PUBLIC_API_URL: string;
-    NEXT_PUBLIC_BRIDGE_URL: string;
     NEXT_PUBLIC_BTC_TOKEN_CONTRACT: string;
     NEXT_PUBLIC_NEAR_SWAP_API: string;
+    NEXT_PUBLIC_NEAR_SWAP_CONTRACT: string;
   }
 }

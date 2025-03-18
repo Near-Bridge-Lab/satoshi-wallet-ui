@@ -1,26 +1,21 @@
 'use client';
 import Loading from '@/components/basic/Loading';
 import Navbar from '@/components/basic/Navbar';
-import { useTokenSelector } from '@/components/wallet/Tokens';
+import { TokenSelector, TokenSelectorButton, useTokenSelector } from '@/components/wallet/Tokens';
 import { BTC_TOKEN_CONTRACT, NEAR_TOKEN_CONTRACT } from '@/config';
 import { nearServices } from '@/services/near';
 import { nearSwapServices } from '@/services/swap';
 import { useTokenStore } from '@/stores/token';
-import { formatAmount, formatNumber, formatPrice, formatToken, parseAmount } from '@/utils/format';
-import { Icon } from '@iconify/react';
 import {
-  Button,
-  Image,
-  Input,
-  Checkbox,
-  Card,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  DropdownSection,
-  Tooltip,
-} from '@nextui-org/react';
+  formatAmount,
+  formatNumber,
+  formatPrice,
+  formatToken,
+  formatValidNumber,
+  parseAmount,
+} from '@/utils/format';
+import { Icon } from '@iconify/react';
+import { Button, Image, Input, Checkbox } from '@nextui-org/react';
 import { get } from 'lodash-es';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,6 +24,7 @@ import { toast } from 'react-toastify';
 import Big from 'big.js';
 import { useClient, useRequest } from '@/hooks/useHooks';
 import { transactionServices } from '@/services/tranction';
+import Slippage from '@/components/wallet/Slippage';
 
 interface SwapForm {
   tokenIn: string;
@@ -42,6 +38,8 @@ export default function Swap() {
   const { isClient } = useClient();
   const query = useSearchParams();
   const { displayableTokens, tokenMeta, balances, refreshBalance, prices } = useTokenStore();
+
+  const defaultSlippage = 0.1;
 
   const {
     watch,
@@ -58,7 +56,7 @@ export default function Swap() {
       tokenOut: query.get('tokenOut') || NEAR_TOKEN_CONTRACT,
       amountIn: '',
       acceptPriceImpact: false,
-      slippage: 0.1,
+      slippage: defaultSlippage,
     },
     mode: 'onTouched',
   });
@@ -67,9 +65,7 @@ export default function Swap() {
   const tokenIn = watch('tokenIn');
   const tokenOut = watch('tokenOut');
   // 添加滑点相关状态
-  const [slippage, setSlippage] = useState(0.1);
-  const [isSlippageOpen, setIsSlippageOpen] = useState(false);
-  const [isCustomSlippage, setIsCustomSlippage] = useState(false);
+  const [slippage, setSlippage] = useState(defaultSlippage);
 
   const [priceReverse, setPriceReverse] = useState(false);
 
@@ -148,14 +144,13 @@ export default function Swap() {
   const balanceIn = useMemo(() => balances?.[tokenIn], [balances, tokenIn]);
 
   const isInsufficientBalance = useMemo(() => {
-    const amountIn = getValues('amountIn');
     if (!amountIn || !balanceIn) return false;
     try {
       return new Big(amountIn).gt(balanceIn);
     } catch {
       return false;
     }
-  }, [balanceIn, getValues('amountIn')]);
+  }, [balanceIn, amountIn]);
 
   const validator = useCallback(
     (key: keyof typeof errors) => {
@@ -166,15 +161,6 @@ export default function Swap() {
   );
 
   const balanceOut = useMemo(() => balances?.[tokenOut], [balances, tokenOut]);
-
-  const handleSlippageAction = (key: string) => {
-    if (key === 'custom') return;
-    const value = Number(key);
-    if (!isNaN(value)) {
-      setSlippage(value);
-      setIsCustomSlippage(false);
-    }
-  };
 
   const tokenInPrice = useMemo(() => {
     const symbol = tokenMeta[tokenIn]?.symbol;
@@ -208,11 +194,7 @@ export default function Swap() {
     setValue('amountIn', '');
   }, [setValue, getValues]);
 
-  const { open } = useTokenSelector();
-
-  async function handleSelectToken(type: 'in' | 'out') {
-    const token = await open({ value: type === 'in' ? tokenIn : tokenOut });
-    if (!token) return;
+  async function handleSelectToken(type: 'in' | 'out', token: string) {
     if (type === 'in') {
       if (token === tokenIn) return;
       if (token === tokenOut) {
@@ -232,30 +214,9 @@ export default function Swap() {
     }
   }
 
-  const TokenSelector = useCallback(
-    ({ token, onSelect }: { token: string; onSelect: (token: string) => void }) => {
-      return (
-        <Button variant="flat" className="flex items-center gap-2 " onClick={() => onSelect(token)}>
-          <Image
-            src={tokenMeta[token]?.icon}
-            width={24}
-            height={24}
-            alt={tokenMeta[token]?.symbol || 'token'}
-          />
-          <span>{formatToken(tokenMeta[token]?.symbol)}</span>
-          <Icon
-            icon="solar:alt-arrow-down-bold"
-            className="text-xs text-default-500 flex-shrink-0"
-          />
-        </Button>
-      );
-    },
-    [tokenMeta],
-  );
-
   const availableBalance = useMemo(
-    () => nearServices.getAvailableBalance(getValues('tokenIn'), balanceIn),
-    [balanceIn, getValues('tokenIn')],
+    () => nearServices.getAvailableBalance(tokenIn, balanceIn),
+    [balanceIn, tokenIn],
   );
 
   return (
@@ -277,53 +238,7 @@ export default function Swap() {
                   className={`text-base ${queryLoading ? 'animate-spin' : ''}`}
                 />
               </Button>
-              <Dropdown isOpen={isSlippageOpen} onOpenChange={setIsSlippageOpen}>
-                <DropdownTrigger>
-                  <Button isIconOnly variant="flat" size="sm">
-                    <Tooltip content={`Slippage: ${slippage}%`}>
-                      <Icon icon="iconamoon:options-light" className="text-base" />
-                    </Tooltip>
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Slippage options"
-                  className="min-w-[160px]"
-                  selectedKeys={
-                    isCustomSlippage ? new Set(['custom']) : new Set([slippage.toString()])
-                  }
-                  selectionMode="single"
-                  onAction={(key) => handleSlippageAction(key.toString())}
-                >
-                  <DropdownSection title="Set max slippage">
-                    <DropdownItem key="0.1">0.1%</DropdownItem>
-                    <DropdownItem key="0.5">0.5%</DropdownItem>
-                    <DropdownItem key="1">1%</DropdownItem>
-                    <DropdownItem
-                      key="custom"
-                      className="data-[selected=true]:bg-primary-50"
-                      isReadOnly
-                      hideSelectedIcon
-                    >
-                      <Input
-                        type="number"
-                        size="sm"
-                        placeholder="Custom"
-                        value={slippage.toString()}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          if (!isNaN(value)) {
-                            setSlippage(value);
-                            setIsCustomSlippage(true);
-                          }
-                        }}
-                        className="w-full"
-                        endContent={<div className="text-small">%</div>}
-                        validationBehavior="aria"
-                      />
-                    </DropdownItem>
-                  </DropdownSection>
-                </DropdownMenu>
-              </Dropdown>
+              <Slippage value={slippage} onChange={setSlippage} />
             </div>
           }
         >
@@ -371,23 +286,18 @@ export default function Swap() {
                           validationBehavior="aria"
                           autoComplete="off"
                           onChange={(e) => {
-                            const value = e.target.value.replace(/[^\d.]/g, '');
-                            const dots = value.match(/\./g)?.length || 0;
-                            if (dots > 1) return;
-                            if (value.startsWith('.')) {
-                              field.onChange('0' + value);
-                            } else {
-                              field.onChange(value);
-                            }
+                            field.onChange(
+                              formatValidNumber(e.target.value, tokenMeta[tokenIn]?.decimals),
+                            );
                           }}
                           onFocus={() => setIsFocus(true)}
                           onBlur={() => setIsFocus(false)}
                         />
                       )}
                     />
-                    <TokenSelector
-                      token={getValues('tokenIn')}
-                      onSelect={() => handleSelectToken('in')}
+                    <TokenSelectorButton
+                      token={tokenIn}
+                      onSelect={(token) => handleSelectToken('in', token)}
                     />
                   </div>
                   <div className="flex justify-between gap-2">
@@ -402,7 +312,7 @@ export default function Swap() {
                         onClick={() => {
                           setValue(
                             'amountIn',
-                            nearServices.getAvailableBalance(getValues('tokenIn'), balanceIn),
+                            nearServices.getAvailableBalance(tokenIn, balanceIn),
                           );
                           trigger('amountIn');
                         }}
@@ -436,9 +346,9 @@ export default function Swap() {
                     <div className="text-2xl font-medium">
                       {formatNumber(swapResult?.amountOut)}
                     </div>
-                    <TokenSelector
-                      token={getValues('tokenOut')}
-                      onSelect={() => handleSelectToken('out')}
+                    <TokenSelectorButton
+                      token={tokenOut}
+                      onSelect={(token) => handleSelectToken('out', token)}
                     />
                   </div>
                   <div className="flex justify-between gap-2">

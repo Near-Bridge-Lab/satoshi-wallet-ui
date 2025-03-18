@@ -107,10 +107,19 @@ export function rpcToWallet<T extends RpcToWalletAction>(
     const urlParams = new URLSearchParams(window.location.search);
     const origin = urlParams.get('origin') || '*';
 
+    const timeout = setTimeout(() => {
+      window.removeEventListener('message', handleMessage);
+      reject(new Error('Wallet request timeout'));
+    }, 60000);
+
     function handleMessage(event: {
       origin: string;
       data: { requestId: string; data: any; error: string; success: boolean };
     }) {
+      if (!event.data || typeof event.data !== 'object') {
+        return;
+      }
+
       if (event.origin !== origin && origin !== '*') {
         console.warn('Untrusted message origin:', event.origin);
         return;
@@ -119,12 +128,14 @@ export function rpcToWallet<T extends RpcToWalletAction>(
       const { requestId: responseId, data, error, success } = event.data;
 
       if (responseId === requestId) {
+        clearTimeout(timeout);
+        window.removeEventListener('message', handleMessage);
+
         if (success) {
           resolve(data);
         } else {
           reject(new Error(error));
         }
-        window.removeEventListener('message', handleMessage);
       }
     }
 
