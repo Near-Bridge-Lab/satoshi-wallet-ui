@@ -1,9 +1,14 @@
 'use client';
 import { useDebouncedEffect, useRequest } from '@/hooks/useHooks';
 import { nearServices } from '@/services/near';
-import { setupWalletSelector, Wallet, WalletSelector } from '@near-wallet-selector/core';
+import {
+  AccountState,
+  setupWalletSelector,
+  Wallet,
+  WalletSelector,
+} from '@near-wallet-selector/core';
 import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button, Card, CardBody, CardHeader, Input, Snippet } from '@nextui-org/react';
 import {
@@ -30,13 +35,6 @@ import { Image } from '@nextui-org/react';
 import { TokenSelectorButton } from '@/components/wallet/Tokens';
 import { nearSwapServices } from '@/services/swap';
 
-declare global {
-  interface Window {
-    nearWalletSelector?: WalletSelector;
-    nearWallet?: NearWallet;
-  }
-}
-
 type NearWallet = Wallet &
   SignMessageMethod & {
     selectWallet?: () => void;
@@ -57,34 +55,36 @@ export default function Page() {
 
 function WalletPage() {
   const [walletSelectorModal, setWalletSelectorModal] = useState<WalletSelectorModal>();
-  const [walletSelector, setWalletSelector] = useState<WalletSelector>();
+
   const [wallet, setWallet] = useState<NearWallet>();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accountId, setAccountId] = useState<string>();
+  const walletSelectorRef = useRef<WalletSelector>();
+  const subscriptionRef = useRef<any>();
 
   const btcProvider = useBtcWalletSelector();
 
-  useDebouncedEffect(
-    () => {
-      initWallet().catch((err) => {
-        console.error(err);
-        toast.error('Failed to initialize wallet selector');
-      });
-      setTimeout(() => {
-        console.log('near wallet signedIn');
-        window.nearWalletSelector?.on('signedIn', handleSignIn);
-        window.nearWalletSelector?.on('accountsChanged', handleSignIn);
-      }, 500);
+  useDebouncedEffect(() => {
+    initWallet();
 
-      return () => {
-        console.log('near wallet signedIn off');
-        window.nearWalletSelector?.off('signedIn', handleSignIn);
-        window.nearWalletSelector?.off('accountsChanged', handleSignIn);
-      };
-    },
-    [],
-    0,
-  );
+    return () => {
+      subscriptionRef.current?.unsubscribe();
+    };
+  }, []);
+
+  async function handleSignIn(accounts: AccountState[]) {
+    try {
+      const account = accounts.find((account) => account.active);
+      console.log('handleSignIn', account);
+      const isSignedIn = !!account;
+      setIsSignedIn(isSignedIn);
+      setAccountId(process.env.NEXT_PUBLIC_TEST_NEAR_ACCOUNT || account?.accountId);
+      const wallet = (await walletSelectorRef.current?.wallet()) as NearWallet;
+      setWallet(wallet);
+    } catch (error) {
+      console.error('handleSignIn error', error);
+    }
+  }
 
   async function initWallet() {
     const network = nearServices.getNearConnectionConfig();
@@ -100,31 +100,27 @@ function WalletPage() {
         // setupHotWallet(),
       ],
     });
-    setWalletSelector(selector);
-    window.nearWalletSelector = selector;
+    walletSelectorRef.current = selector;
 
     const modal = setupWalletSelectorModal(selector as any, {
       contractId: '',
       theme: 'dark',
     });
     setWalletSelectorModal(modal);
+    if (!walletSelectorRef.current) return;
+    const store = walletSelectorRef.current.store;
 
-    if (selector.isSignedIn()) {
-      handleSignIn();
-    }
+    const accounts = store.getState().accounts;
+
+    handleSignIn(accounts);
+    subscriptionRef.current = store.observable.subscribe((state) => {
+      console.log('subscribe accounts', state.accounts);
+      handleSignIn(state.accounts);
+    });
   }
 
   async function selectWallet() {
     walletSelectorModal?.show();
-  }
-
-  async function handleSignIn() {
-    const wallet = await window.nearWalletSelector?.wallet();
-    setWallet(wallet);
-    const accountId = (await wallet?.getAccounts())?.[0].accountId;
-    console.log('handleSignIn', accountId);
-    setAccountId(accountId);
-    setIsSignedIn(!!accountId);
   }
 
   async function disconnect() {
@@ -138,16 +134,6 @@ function WalletPage() {
       console.error('disconnect error', error);
     }
   }
-
-  useEffect(() => {
-    window.nearWallet = {
-      ...wallet,
-      selectWallet,
-      disconnect,
-      isSignedIn,
-      accountId,
-    } as NearWallet;
-  }, [wallet, isSignedIn, accountId]);
 
   // useEffect(() => {
   //   wallet && btcContext.account ? initWalletButton(wallet, btcContext!) : removeWalletButton();
