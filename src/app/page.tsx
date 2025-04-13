@@ -7,6 +7,7 @@ import { BTC_TOKEN_CONTRACT } from '@/config';
 import { useClient } from '@/hooks/useHooks';
 import { useTokenStore } from '@/stores/token';
 import { useWalletStore } from '@/stores/wallet';
+import { safeBig } from '@/utils/big';
 
 import {
   formatFileUrl,
@@ -109,22 +110,26 @@ function Account() {
 
 function Balance({ className }: { className?: string }) {
   const { isClient } = useClient();
-  const { balances, prices, tokenMeta } = useTokenStore();
-  const balance = useMemo(() => balances?.[BTC_TOKEN_CONTRACT], [balances]);
-  const balanceUSD = useMemo(
-    () =>
-      new Big(prices?.[tokenMeta[BTC_TOKEN_CONTRACT]?.symbol!] || 0).times(balance || 0).toNumber(),
-    [balance, prices, tokenMeta],
-  );
+  const { balances, prices, tokenMeta, displayableTokens } = useTokenStore();
+  const totalBalanceUSD = useMemo(() => {
+    return Object.entries(balances ?? {}).reduce((acc, [token, balance]) => {
+      if (!displayableTokens?.includes(token)) {
+        return acc;
+      }
+      return acc.plus(
+        safeBig(balance)
+          .times(safeBig(prices?.[tokenMeta[token]?.symbol!] || 0))
+          .toNumber(),
+      );
+    }, safeBig(0));
+  }, [balances, prices, tokenMeta]);
 
   return (
     isClient && (
       <div className={`flex flex-col items-center justify-center gap-2 ${className ?? ''}`}>
         <div className="text-4xl font-bold">
-          {formatNumber(balance || 0)}{' '}
-          <span>{formatToken(tokenMeta[BTC_TOKEN_CONTRACT]?.symbol)}</span>
+          ${formatPrice(totalBalanceUSD.toFixed(2, Big.roundDown), { useUnit: false })}
         </div>
-        <div className="text-default-500">≈ ${formatPrice(balanceUSD)}</div>
       </div>
     )
   );
