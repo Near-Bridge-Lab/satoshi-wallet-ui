@@ -39,8 +39,8 @@ importers:
         specifier: ^6.2.2
         version: 6.2.2
       btc-wallet:
-        specifier: 0.5.38-beta
-        version: 0.5.38-beta(@near-js/providers@1.0.1)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)
+        specifier: 0.5.39-beta
+        version: 0.5.39-beta(@near-js/providers@1.0.1)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10)
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
@@ -2108,8 +2108,8 @@ packages:
   bs58check@3.0.1:
     resolution: {integrity: sha512-hjuuJvoWEybo7Hn/0xOrczQKKEKD63WguEjlhLExYs2wUBcebDC1jDNK17eEAD2lYfw82d5ASC1d7K3SWszjaQ==}
 
-  btc-wallet@0.5.38-beta:
-    resolution: {integrity: sha512-TcnHSwCitfJd2UYE/8v8TaLb9aPIFQxTHuckbmwJoq91DQJTKuSVIvJ6lllQnjyR4sqeJi0gWp0Sz1O2my7gdQ==}
+  btc-wallet@0.5.39-beta:
+    resolution: {integrity: sha512-zjdYO0pvQBXCLPCaIeknouawcwgsXxMDV0c7UhIW0DSN4Zmq55oj/f0jgmsSoJUsXInkVdyC++vYbvleMJk7+A==}
     peerDependencies:
       react: '>=17.0.0'
 
@@ -7359,7 +7359,7 @@ snapshots:
       '@noble/hashes': 1.7.2
       bs58: 5.0.0
 
-  btc-wallet@0.5.38-beta(@near-js/providers@1.0.1)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10):
+  btc-wallet@0.5.39-beta(@near-js/providers@1.0.1)(@types/react@18.3.12)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.6.3)(utf-8-validate@5.0.10):
     dependencies:
       '@bitcoinerlab/secp256k1': 1.2.0
       '@ethereumjs/util': 9.1.0

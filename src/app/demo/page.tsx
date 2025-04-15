@@ -193,9 +193,12 @@ function WalletPage() {
     data: btcBalance,
     run: runBtcBalance,
     loading: btcBalanceLoading,
-  } = useRequest(() => getBtcBalance(undefined, { env: RUNTIME_NETWORK }), {
-    refreshDeps: [accountId],
-  });
+  } = useRequest(
+    () => getBtcBalance(btcProvider.account, { csna: accountId, env: RUNTIME_NETWORK }),
+    {
+      refreshDeps: [accountId],
+    },
+  );
   const [depositAmount, setDepositAmount] = useState<string>('0.0001');
 
   const { data: depositAmountRes, loading: depositAmountLoading } = useRequest(

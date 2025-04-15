@@ -64,7 +64,7 @@ export default function Bridge() {
   const toChain = watch('toChain');
 
   const { data: btcBalanceRes } = useRequest(
-    () => getBtcBalance(btcAccountId, { env: RUNTIME_NETWORK }),
+    () => getBtcBalance(btcAccountId, { csna: accountId, env: RUNTIME_NETWORK }),
     {
       refreshDeps: [btcAccountId],
       pollingInterval: 20000,
