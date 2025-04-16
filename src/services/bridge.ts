@@ -46,13 +46,14 @@ export const btcBridgeServices = {
         newAccountMinDepositAmount: false,
       });
       const protocolFee = formatAmount(res.protocolFee, btcDecimals);
+      const receiveAmount = formatAmount(res.receiveAmount, btcDecimals);
       const rawGasFee = await calculateGasFee(btcAccount, Number(rawAmount));
       const gasFee = formatAmount(rawGasFee, btcDecimals);
       return {
         time,
         gasFee,
         protocolFee,
-        receiveAmount: amount,
+        receiveAmount,
         canBridge: true,
       };
     } else {

@@ -314,9 +314,9 @@ function WalletPage() {
             <Loading loading={depositAmountLoading}>
               <div className="flex flex-col gap-2 text-xs">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-default-500">Deposit Amount:</span>{' '}
+                  <span className="text-default-500">Receive Amount:</span>{' '}
                   <span>
-                    {formatAmount(depositAmountRes?.depositAmount, 8) || '0'}{' '}
+                    {formatAmount(depositAmountRes?.receiveAmount, 8) || '0'}{' '}
                     <span className="text-xs text-default-500">BTC</span>
                   </span>
                 </div>
@@ -343,13 +343,6 @@ function WalletPage() {
                     </span>
                   </div>
                 ) : null}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-default-500">Total Deposit Amount:</span>{' '}
-                  <span>
-                    {formatAmount(depositAmountRes?.totalDepositAmount, 8) || '0'}{' '}
-                    <span className="text-xs text-default-500">BTC</span>
-                  </span>
-                </div>
               </div>
             </Loading>
             <div className="flex items-center gap-5">
