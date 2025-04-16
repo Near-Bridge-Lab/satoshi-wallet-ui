@@ -362,13 +362,13 @@ function WalletPage() {
           </CardBody>
         </Card>
 
-        <BTCSwapNEAR />
+        <BTCSwapNEAR btcAccount={btcProvider.account} nearAccount={accountId!} />
       </div>
     </div>
   );
 }
 
-function BTCSwapNEAR() {
+function BTCSwapNEAR({ btcAccount, nearAccount }: { btcAccount: string; nearAccount: string }) {
   const { tokenMeta } = useTokenStore();
   const [amountIn, setAmountIn] = useState('');
   const [loading, setLoading] = useState(false);
@@ -384,16 +384,20 @@ function BTCSwapNEAR() {
       const btcBridgeRes = await btcBridgeServices.estimate({
         chain: 'btc',
         amount: amountIn,
+        btcAccount,
+        nearAccount,
       });
+      const receiveAmount = btcBridgeRes.receiveAmount;
+      console.log('btcBridgeRes', btcBridgeRes);
       const swapRes = await nearSwapServices.query({
         tokenIn,
         tokenOut,
-        amountIn,
+        amountIn: receiveAmount,
       });
       const impactRes = await nearSwapServices.queryPriceImpact({
         tokenIn,
         tokenOut,
-        amountIn,
+        amountIn: receiveAmount,
       });
       const res = { ...swapRes, impact: impactRes, btcBridge: btcBridgeRes };
       console.log(res);
@@ -410,10 +414,17 @@ function BTCSwapNEAR() {
     if (!amountIn) return;
     try {
       setLoading(true);
+      const btcBridgeRes = await btcBridgeServices.estimate({
+        chain: 'btc',
+        amount: amountIn,
+        btcAccount,
+        nearAccount,
+      });
+      const receiveAmount = btcBridgeRes.receiveAmount;
       const action = await nearSwapServices.generateTransaction({
         tokenIn,
         tokenOut,
-        amountIn,
+        amountIn: receiveAmount,
       });
       await executeBTCDepositAndAction({
         action: {

@@ -19,7 +19,17 @@ export const btcBridgeServices = {
       },
     ];
   },
-  async estimate({ chain, amount }: { chain: string; amount: string }): Promise<{
+  async estimate({
+    chain,
+    amount,
+    btcAccount,
+    nearAccount,
+  }: {
+    chain: string;
+    amount: string;
+    btcAccount?: string;
+    nearAccount?: string;
+  }): Promise<{
     time: string;
     gasFee: string;
     protocolFee: string;
@@ -27,7 +37,10 @@ export const btcBridgeServices = {
     canBridge: boolean;
     error?: string;
   }> {
-    const { originalAccountId: btcAccount, accountId: nearAccount } = useWalletStore.getState();
+    const { originalAccountId, accountId } = useWalletStore.getState();
+    btcAccount = btcAccount || originalAccountId;
+    nearAccount = nearAccount || accountId;
+
     const time = '~20 Min';
     if (!btcAccount || !nearAccount || new Big(amount || 0).eq(0)) {
       return {
