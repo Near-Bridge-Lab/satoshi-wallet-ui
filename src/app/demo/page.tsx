@@ -181,9 +181,9 @@ function WalletPage() {
         env: RUNTIME_NETWORK,
       });
       toast.success('Deposit Success,message:' + JSON.stringify(res));
-    } catch (error) {
+    } catch (error: any) {
       console.error('deposit error', error);
-      toast.error('Deposit failed');
+      toast.error('Deposit failed:' + error.message);
     } finally {
       setDepositLoading(false);
     }
@@ -387,17 +387,17 @@ function BTCSwapNEAR({ btcAccount, nearAccount }: { btcAccount: string; nearAcco
         btcAccount,
         nearAccount,
       });
-      const receiveAmount = btcBridgeRes.receiveAmount;
+      const swapAmount = btcBridgeRes.receiveAmount;
       console.log('btcBridgeRes', btcBridgeRes);
       const swapRes = await nearSwapServices.query({
         tokenIn,
         tokenOut,
-        amountIn: receiveAmount,
+        amountIn: swapAmount,
       });
       const impactRes = await nearSwapServices.queryPriceImpact({
         tokenIn,
         tokenOut,
-        amountIn: receiveAmount,
+        amountIn: swapAmount,
       });
       const res = { ...swapRes, impact: impactRes, btcBridge: btcBridgeRes };
       console.log(res);
@@ -420,25 +420,26 @@ function BTCSwapNEAR({ btcAccount, nearAccount }: { btcAccount: string; nearAcco
         btcAccount,
         nearAccount,
       });
-      const receiveAmount = btcBridgeRes.receiveAmount;
+      const swapAmount = btcBridgeRes.receiveAmount;
       const action = await nearSwapServices.generateTransaction({
         tokenIn,
         tokenOut,
-        amountIn: receiveAmount,
+        amountIn: swapAmount,
       });
       await executeBTCDepositAndAction({
+        amount: parseAmount(amountIn, 8),
         action: {
           receiver_id: process.env.NEXT_PUBLIC_NEAR_SWAP_CONTRACT,
-          amount: parseAmount(amountIn, 8),
+          amount: parseAmount(swapAmount, 8),
           msg: action.args.msg,
         },
         pollResult: false,
         env: RUNTIME_NETWORK,
       });
       toast.success('Swap in progress, please wait for confirmation, estimated time: 20 minutes');
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error('Swap failed');
+      toast.error('Swap failed:' + error.message);
     } finally {
       setLoading(false);
     }
